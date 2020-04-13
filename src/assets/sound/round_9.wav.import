@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/round_9.wav-61750a172d35ea30252478999d3c9dcc.sample"
+
+[deps]
+
+source_file="res://assets/sound/round_9.wav"
+dest_files=[ "res://.import/round_9.wav-61750a172d35ea30252478999d3c9dcc.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

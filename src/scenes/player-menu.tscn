@@ -1,0 +1,164 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://scripts/player-menu.gd" type="Script" id=1]
+[ext_resource path="res://assets/ps_window.png" type="Texture" id=2]
+[ext_resource path="res://assets/player_settings/players_settings_board.png" type="Texture" id=3]
+[ext_resource path="res://assets/sound/tap.wav" type="AudioStream" id=4]
+[ext_resource path="res://assets/Buttons/hover.tres" type="StyleBox" id=5]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.243137, 0.32549, 0.407843, 1 )
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.203922, 0.286275, 0.368627, 1 )
+
+[sub_resource type="DynamicFontData" id=3]
+font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
+
+[sub_resource type="DynamicFont" id=4]
+size = 32
+font_data = SubResource( 3 )
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0.243137, 0.32549, 0.407843, 1 )
+
+[sub_resource type="DynamicFontData" id=6]
+font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
+
+[sub_resource type="DynamicFont" id=7]
+size = 18
+font_data = SubResource( 6 )
+
+[node name="player_menu" type="Control"]
+margin_right = 640.0
+margin_bottom = 480.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="window" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+centered = false
+
+[node name="scroll" type="ScrollContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -123.0
+margin_top = -229.0
+margin_right = 123.0
+margin_bottom = 91.5
+rect_min_size = Vector2( 246, 320.5 )
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="players_settings_board" type="Sprite" parent="scroll"]
+position = Vector2( 121.406, 161.165 )
+texture = ExtResource( 3 )
+
+[node name="container" type="VBoxContainer" parent="scroll"]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="vbox" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -123.0
+margin_top = -134.0
+margin_right = 123.0
+margin_bottom = -12.0
+rect_min_size = Vector2( 246, 96 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="add" type="Button" parent="vbox"]
+margin_right = 246.0
+margin_bottom = 45.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/hover = ExtResource( 5 )
+custom_styles/pressed = SubResource( 1 )
+custom_styles/normal = SubResource( 2 )
+custom_fonts/font = SubResource( 4 )
+custom_colors/font_color = Color( 0.584314, 0.647059, 0.65098, 1 )
+text = "ADD"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="play" type="Button" parent="vbox"]
+margin_top = 49.0
+margin_right = 246.0
+margin_bottom = 94.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/hover = ExtResource( 5 )
+custom_styles/pressed = SubResource( 5 )
+custom_styles/normal = SubResource( 2 )
+custom_fonts/font = SubResource( 4 )
+custom_colors/font_color = Color( 0.584314, 0.647059, 0.65098, 1 )
+text = "PLAY"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="anticheat" type="CheckBox" parent="vbox"]
+margin_top = 98.0
+margin_right = 246.0
+margin_bottom = 122.0
+text = "ANTI CHEAT MODE"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="messages" type="Label" parent="."]
+margin_left = 216.243
+margin_top = 247.11
+margin_right = 418.243
+margin_bottom = 302.11
+custom_fonts/font = SubResource( 7 )
+text = "Add at least 2 players
+to play"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="anticheat" type="Label" parent="."]
+margin_left = 444.415
+margin_top = 25.6147
+margin_right = 640.415
+margin_bottom = 296.615
+custom_fonts/font = SubResource( 7 )
+text = "NOTE:
+In anti cheat mode the cursor will be hidden in the play area, to get a hint about it's location
+you can press on 'S' or \"CTRL\""
+align = 1
+valign = 1
+autowrap = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="sfx" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 4 )
+volume_db = 10.0
+[connection signal="pressed" from="vbox/add" to="." method="_on_add_pressed"]
+[connection signal="pressed" from="vbox/play" to="." method="_on_play_pressed"]
+[connection signal="toggled" from="vbox/anticheat" to="." method="_on_anticheat_toggled"]

@@ -1,0 +1,122 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://scripts/player_status.gd" type="Script" id=1]
+[ext_resource path="res://assets/highlighted.png" type="Texture" id=2]
+[ext_resource path="res://assets/avatars/bot-green.png" type="Texture" id=3]
+[ext_resource path="res://assets/player_status.png" type="Texture" id=4]
+[ext_resource path="res://assets/round_progress.png" type="Texture" id=5]
+
+[sub_resource type="DynamicFontData" id=1]
+font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
+
+[sub_resource type="DynamicFont" id=2]
+font_data = SubResource( 1 )
+
+[sub_resource type="DynamicFontData" id=3]
+font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
+
+[sub_resource type="DynamicFont" id=4]
+size = 8
+font_data = SubResource( 3 )
+
+[sub_resource type="DynamicFontData" id=5]
+font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
+
+[sub_resource type="DynamicFont" id=6]
+size = 8
+font_data = SubResource( 5 )
+
+[sub_resource type="StreamTexture" id=7]
+flags = 4
+load_path = "res://.import/top-door-edge-2.png-e89b438ce7198f65f56a0c00e5e9c1de.stex"
+
+[node name="player_settings" type="Container"]
+margin_right = 175.0
+margin_bottom = 72.0
+rect_min_size = Vector2( 175, 70 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="highlighted" type="Sprite" parent="."]
+position = Vector2( -8.50445, -0.156428 )
+scale = Vector2( 1.04264, 0.843573 )
+texture = ExtResource( 2 )
+centered = false
+offset = Vector2( -1, -1 )
+
+[node name="player_status" type="Sprite" parent="."]
+texture = ExtResource( 4 )
+centered = false
+
+[node name="player_name" type="Label" parent="."]
+anchor_top = 0.0142857
+anchor_right = 0.0171417
+anchor_bottom = 0.0142857
+margin_left = 64.9198
+margin_top = 11.4899
+margin_right = 111.92
+margin_bottom = 34.4899
+custom_fonts/font = SubResource( 2 )
+text = "Player"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="round_score" type="Label" parent="."]
+modulate = Color( 0.0235294, 0.972549, 0.505882, 1 )
+anchor_left = 0.00571429
+anchor_top = 0.0142857
+anchor_right = 0.00571429
+anchor_bottom = 0.0142857
+margin_left = 139.0
+margin_top = 7.0
+margin_right = 169.0
+margin_bottom = 23.0
+custom_fonts/font = SubResource( 4 )
+text = "0"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="avatar" type="Sprite" parent="."]
+position = Vector2( 24.9855, 24.833 )
+scale = Vector2( 0.6, 0.6 )
+texture = ExtResource( 3 )
+
+[node name="full_round_progress" type="Sprite" parent="."]
+modulate = Color( 0.203922, 0.286275, 0.368627, 1 )
+position = Vector2( 7.42791, 52.9579 )
+texture = ExtResource( 5 )
+centered = false
+region_enabled = true
+region_rect = Rect2( 0, 0, 160, 8 )
+
+[node name="total_score" type="Label" parent="."]
+modulate = Color( 1, 0.207843, 0.207843, 1 )
+anchor_left = 0.00571429
+anchor_top = 0.0285714
+anchor_right = 0.00571429
+anchor_bottom = 0.0285714
+margin_left = 139.0
+margin_top = 24.5546
+margin_right = 169.0
+margin_bottom = 40.5546
+custom_fonts/font = SubResource( 6 )
+text = "0"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="bot" type="Sprite" parent="."]
+visible = false
+position = Vector2( 56, 24 )
+scale = Vector2( 0.1, 0.1 )
+texture = SubResource( 7 )

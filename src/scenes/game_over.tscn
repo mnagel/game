@@ -1,0 +1,52 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/popup.png" type="Texture" id=2]
+[ext_resource path="res://assets/fonts/df_btn.tres" type="DynamicFont" id=4]
+
+[node name="game_over" type="Popup"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -320.0
+margin_top = -240.0
+margin_right = -15.1
+margin_bottom = 159.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="popup" type="Sprite" parent="."]
+z_as_relative = false
+texture = ExtResource( 2 )
+centered = false
+
+[node name="winner" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -105.45
+margin_top = -141.5
+margin_right = 93.55
+margin_bottom = -115.5
+custom_fonts/font = ExtResource( 4 )
+text = "Winner is red"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="order" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -87.45
+margin_top = -107.5
+margin_right = 87.55
+margin_bottom = 189.5
+__meta__ = {
+"_edit_use_anchors_": false
+}

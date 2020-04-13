@@ -1,0 +1,95 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://scripts/player_settings.gd" type="Script" id=1]
+[ext_resource path="res://assets/player_settings/ps_bg.png" type="Texture" id=2]
+[ext_resource path="res://assets/avatars/bot-blue.png" type="Texture" id=3]
+[ext_resource path="res://assets/player_settings/bot_toggle.png" type="Texture" id=4]
+[ext_resource path="res://assets/fonts/df_btn.tres" type="DynamicFont" id=5]
+[ext_resource path="res://assets/player_settings/human_toggle.png" type="Texture" id=6]
+
+[sub_resource type="DynamicFontData" id=1]
+font_path = "res://Fonts/OpenSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=2]
+font_data = SubResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.92549, 0.941176, 0.945098, 1 )
+corner_detail = 1
+anti_aliasing_size = 2
+
+[sub_resource type="DynamicFontData" id=4]
+font_path = "res://Fonts/OpenSans-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=5]
+size = 14
+font_data = SubResource( 4 )
+
+[node name="player_settings" type="Control"]
+margin_right = 246.0
+margin_bottom = 85.0
+rect_min_size = Vector2( 246, 85 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_horizontal_guides_": [ 14.0158 ],
+"_edit_use_anchors_": false
+}
+
+[node name="ps_bg" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+centered = false
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="bot" type="CheckButton" parent="."]
+margin_left = 93.1539
+margin_top = 13.4277
+margin_right = 195.154
+margin_bottom = 46.4277
+size_flags_horizontal = 2
+size_flags_vertical = 3
+custom_icons/off = ExtResource( 6 )
+custom_icons/on = ExtResource( 4 )
+custom_fonts/font = SubResource( 2 )
+flat = true
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="player_name" type="LineEdit" parent="."]
+margin_left = 8.79404
+margin_top = 19.5587
+margin_right = 97.794
+margin_bottom = 41.5587
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/normal = SubResource( 3 )
+custom_fonts/font = ExtResource( 5 )
+custom_colors/font_color = Color( 0.172549, 0.243137, 0.313726, 1 )
+text = "Red"
+align = 1
+max_length = 5
+caret_blink = true
+caret_blink_speed = 0.5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="remove" type="Button" parent="."]
+margin_left = -0.887085
+margin_top = 57.9438
+margin_right = 245.113
+margin_bottom = 83.9438
+custom_fonts/font = SubResource( 5 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+flat = true
+
+[node name="avatar" type="Sprite" parent="."]
+position = Vector2( 220.111, 27.048 )
+scale = Vector2( 0.8, 0.8 )
+texture = ExtResource( 3 )
+[connection signal="toggled" from="bot" to="." method="_on_bot_toggled"]
+[connection signal="text_changed" from="player_name" to="." method="_on_player_name_text_changed"]
+[connection signal="pressed" from="remove" to="." method="_on_remove_pressed"]
