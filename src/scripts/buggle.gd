@@ -109,7 +109,8 @@ func on_area_entered(area):
 		
 		# Explosion
 		explosion.emitting = true
-		explosion.modulate = ColorN(area.color)
+		explosion.process_material.color_ramp.gradient.set_color(0, ColorN(area.color))
+		explosion.process_material.color_ramp.gradient.set_color(1, ColorN(area.color))
 		
 		# Sound effects
 		if global.sound:
@@ -155,6 +156,11 @@ func _ready():
 	direction = Vector2(rnx, rny)
 	direction = direction.normalized()
 	connect("area_entered", self, "on_area_entered")
+
+	# Allow different gradients per boggle (actually only needed per player but whatever)
+	explosion.process_material = explosion.process_material.duplicate()
+	explosion.process_material.color_ramp = explosion.process_material.color_ramp.duplicate()
+	explosion.process_material.color_ramp.gradient = explosion.process_material.color_ramp.gradient.duplicate()
 
 func _physics_process(delta):
 	# check if moving individually, and as all buggles

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://assets/buggle.png" type="Texture" id=1]
 [ext_resource path="res://assets/circle.png" type="Texture" id=2]
@@ -9,23 +9,41 @@
 [sub_resource type="CircleShape2D" id=1]
 radius = 25.0
 
-[sub_resource type="ParticlesMaterial" id=2]
+[sub_resource type="CanvasItemMaterial" id=2]
+blend_mode = 1
+
+[sub_resource type="Gradient" id=3]
+offsets = PoolRealArray( 0, 0.686567, 1 )
+colors = PoolColorArray( 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=4]
+gradient = SubResource( 3 )
+
+[sub_resource type="Curve" id=5]
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 0.184713, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0.731818 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=6]
+curve = SubResource( 5 )
+
+[sub_resource type="ParticlesMaterial" id=7]
 lifetime_randomness = 1.0
 emission_shape = 1
 emission_sphere_radius = 2.01
 flag_disable_z = true
 spread = 180.0
 gravity = Vector3( 0, 0, 0 )
-initial_velocity = 114.94
-initial_velocity_random = 0.74
+initial_velocity = 68.43
+initial_velocity_random = 0.69
 orbit_velocity = 0.0
 orbit_velocity_random = 0.0
-damping = 32.19
-damping_random = 0.44
+damping = 94.98
+damping_random = 0.38
 angle = 360.0
 angle_random = 1.0
 scale = 5.0
-scale_random = 1.0
+scale_random = 0.78
+scale_curve = SubResource( 6 )
+color_ramp = SubResource( 4 )
 hue_variation = 0.06
 hue_variation_random = 1.0
 
@@ -51,12 +69,15 @@ stream = ExtResource( 3 )
 volume_db = -30.0
 
 [node name="explosion" type="Particles2D" parent="."]
+modulate = Color( 2, 2, 2, 1 )
+self_modulate = Color( 2, 2, 2, 1 )
+material = SubResource( 2 )
 rotation = -0.253073
 emitting = false
-amount = 100
-lifetime = 0.4
+amount = 1000
 one_shot = true
 explosiveness = 1.0
+randomness = 1.0
 visibility_rect = Rect2( -50, -50, 100.005, 100 )
-process_material = SubResource( 2 )
+process_material = SubResource( 7 )
 texture = ExtResource( 6 )
