@@ -90,6 +90,7 @@ func tryPutCore(position):
 		return false
 
 	var instancedSlime = slimecore.instance()
+	instancedSlime.set_safe_zone(safe_zone)
 	instancedSlime.primary = primary_core_phase
 	instancedSlime.position = position
 
