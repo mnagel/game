@@ -3,7 +3,7 @@ extends Node
 const SERVER_PORT := 3333
 const MAX_CLIENTS := 25
 
-def _player_connected(id):
+func _player_connected(id):
 	# Purely informational console output.
 	print("Player connected: " + str(id))
 
