@@ -104,6 +104,10 @@ tracks/1/keys = {
 "values": [ Color( 0.537255, 0.0156863, 0.898039, 1 ), Color( 0.537255, 0.0156863, 0.898039, 1 ), Color( 1, 1, 1, 0 ) ]
 }
 
+[sub_resource type="AudioStreamSample" id=12]
+data = PoolByteArray( 0, 8, 15, 13, 37, 0 )
+format = 1
+
 [sub_resource type="DynamicFont" id=13]
 size = 14
 font_data = SubResource( 5 )
