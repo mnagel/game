@@ -49,7 +49,7 @@ onready var tutorial_popup = $tutorial
 # Slimes
 var slimecore = preload("res://scenes/slimecore.tscn")
 var player_status = preload("res://scenes/player_status.tscn")
-var slimes_nodes = []
+var slimecores = []
 var safe_zone = 90  # The minimum distance between the primary and 2nd slimes
 
 # Viewport limits
@@ -71,47 +71,34 @@ var game_over = false
 var tutorial = global.tutorial
 
 # Functions
-func putSlime(position):
-	# position == null is used to trigger AI placement
+func tryPutCore(position):
 	var instancedSlime = slimecore.instance()
 	instancedSlime.primary = primary_core_phase
-
-	if position == null:
-		instancedSlime.position = getMidstPosition()+ getRandomPosition()*rng.randf_range(0.2, 0.5)
-	else:
-		instancedSlime.position = position
+	instancedSlime.position = position
 
 	# Safe zone
-	for slime in slimes_nodes:
+	for slime in slimecores:
 		if slime.primary and not primary_core_phase:
 			
 			var slimes_distance = slime.position - instancedSlime.position
 			if slimes_distance.length() <= safe_zone:
-				if position == null:  # Bot's turn
-					# bot's will keep getting positions, till it find one, that is away 
-					while slimes_distance.length() <= safe_zone:
-						instancedSlime.position = getRandomPosition()
-						slimes_distance = slime.position - instancedSlime.position
-				# If very close: show a message and return
-				else: # Human
-					warnPlayer()
-					showMessage("You can't input very close to the primary slime\n", true)
-					return
+				return false
 	if global.sound:
 		sfx.play()
 
 	instancedSlime.color = players.keys()[current_player - 1]
-	slimes_nodes.append(instancedSlime)
+	slimecores.append(instancedSlime)
 	add_child(instancedSlime)
 	player_timer.stop()
 	current_player += 1
 	turn_msg_displayed = false
+	return true
 
 func warnPlayer(): # Warn the player visually
 	warn_player.play("veryClose")
 
-func BotDecision():
-	putSlime(null)
+func getBotLocationChoice():
+	return getMidstPosition() + getRandomPosition() * rng.randf_range(0.2, 0.5)
 
 func classifiePlayers():
 	var posts = {}
@@ -152,9 +139,9 @@ func resetBuggles():
 	buggles_nodes = []
 
 func removeSlimes():
-	for node in slimes_nodes:
+	for node in slimecores:
 		remove_child(node)
-	slimes_nodes = []
+	slimecores = []
 
 func getRandomPosition():
 	rng.randomize()
@@ -201,7 +188,7 @@ func _process(_delta):
 				game_over = true
 
 	# Hide slimes while inputing to prevent cheating
-	for slime in slimes_nodes:
+	for slime in slimecores:
 		if slime.primary:
 			slime.visible = (not pause_buggles) or (not primary_core_phase)
 		else:  # the secondary slimes
@@ -240,7 +227,7 @@ func _process(_delta):
 	# If nobody is playing, aka: buggles are moving
 	else:
 		# display reviewing message, only when there are slimes
-		if slimes_nodes.size():
+		if slimecores.size():
 			if start_next_round_timer.is_stopped():
 				showMessage("Reviewing slime activity ...", true)
 			else:
@@ -258,10 +245,10 @@ func _process(_delta):
 		if len(buggles_nodes) and not primary_core_phase:  # if this is the secondary slime input
 			showMessage("resetting now", true)
 			resetBuggles()
-		if primary_core_phase and slimes_nodes.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
+		if primary_core_phase and slimecores.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
 			current_player = 1  # First player's turn
 			primary_core_phase = false
-		if slimes_nodes.size() != 0: 
+		if slimecores.size() != 0: 
 			pause_buggles = false  # make buggles move
 		else:
 			# If timeout and nobody has played
@@ -304,7 +291,9 @@ func _input(event):
 			):
 				# If the player hasn't played yet, and is human
 				if current_player <= num_players and not isPlayerBot(current_player - 1):
-					putSlime(mouse_pos)
+					if not tryPutCore(mouse_pos):
+						warnPlayer()
+						showMessage("You can't input very close to the primary slime\n", true)
 
 func _ready():
 	if global.tutorial:
@@ -363,14 +352,19 @@ func on_start_next_round_timer_timeout():
 		round_sfx.play()
 
 func on_bot_thinking_timeout():
-	BotDecision()
+	while true:	
+		if tryPutCore(getBotLocationChoice()):
+			break
+		else:
+			# position was illegal. try again
+			continue
 	player_timer.stop()
 
 func on_player_timer_timeout():
 	current_player += 1
 	if pause_buggles:
 		player_timer.start()
-	elif slimes_nodes.size == 0:
+	elif slimecores.size == 0:
 		showMessage("Nobody played, moving on to next round")
 		current_round += 1
 
