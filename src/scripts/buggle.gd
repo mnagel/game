@@ -96,8 +96,10 @@ func on_area_entered(area):
 		new_line.default_color = ColorN(area.color)
 		# Antialiasing
 		new_line.antialiased = global.antialiasing
-		if distance <= 2: new_line.width = 10 / distance
-		else: new_line.width = 20 / distance
+		if distance <= 2:
+			new_line.width = 10 / distance
+		else:
+			new_line.width = 20 / distance
 		new_line.z_index = -1
 		add_child(new_line)
 		connection = new_line

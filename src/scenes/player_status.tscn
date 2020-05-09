@@ -28,7 +28,6 @@ font_data = SubResource( 5 )
 
 [sub_resource type="StreamTexture" id=7]
 flags = 4
-load_path = "res://.import/top-door-edge-2.png-e89b438ce7198f65f56a0c00e5e9c1de.stex"
 
 [node name="player_settings" type="Container"]
 margin_right = 175.0

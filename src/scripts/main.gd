@@ -169,6 +169,7 @@ func generateBuggles():
 	for _i in range(0, buggles_count):
 		var instancedBuggle = buggle.instance()
 		instancedBuggle.position = getRandomPosition()
+		instancedBuggle.get_node("donut-std-1").rotation_degrees = rng.randi_range(0, 360)
 		buggles_nodes.append(instancedBuggle)
 		add_child(instancedBuggle)
 	return
