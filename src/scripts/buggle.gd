@@ -31,7 +31,6 @@ var num_slimes = 0
 var max_slimes = 4
 var slimes_queue = []
 var uniq_slimes = {}
-var safe_zone = 50
 
 func rand_choose(lst):
 	return lst[rng.randi_range(0, lst.size()-1)]
@@ -73,7 +72,7 @@ func on_area_entered(area):
 		# if the area is far away, just ignore it 
 		if area.type == "slimed-buggle":
 			var _distance = position - area.position
-			if _distance.length() > safe_zone:
+			if _distance.length() > global.connection_maxlength:
 				slimes_queue = []
 				return
 		# Let other buggles detect this slimed-buggle

@@ -50,7 +50,6 @@ onready var tutorial_popup = $tutorial
 var slimecore = preload("res://scenes/slimecore.tscn")
 var player_status = preload("res://scenes/player_status.tscn")
 var slimecores = []
-var safe_zone = 90  # The minimum distance between the primary and 2nd slimes
 
 # Viewport limits
 var margin = global.margin
@@ -76,7 +75,7 @@ func canPlaceCore(position):
 		for slime in slimecores:
 			if slime.primary:
 				var slimes_distance = slime.position - position
-				if slimes_distance.length() <= safe_zone:
+				if slimes_distance.length() <= global.safezone_radius:
 					return false
 			else:
 				# secondary cores may be closeby, because their position is not known to the player
@@ -90,7 +89,7 @@ func tryPutCore(position):
 		return false
 
 	var instancedSlime = slimecore.instance()
-	instancedSlime.set_safe_zone(safe_zone)
+	instancedSlime.set_safe_zone(global.safezone_radius)
 	instancedSlime.primary = primary_core_phase
 	instancedSlime.position = position
 
@@ -110,36 +109,49 @@ func warnPlayer(): # Warn the player visually
 	warn_player.play("veryClose")
 
 func getBotLocationChoice(player_id):
-	if player_id == 3:
-		return getMnagelBotLocationChoice(player_id)
+	if player_id != 0:
+		return getMnagelBotLocationChoice(player_id, player_id * 20 + 20)
 	else:
 		return getMidstPosition() + getRandomPosition() * rng.randf_range(0.2, 0.5)
 		
-func getMnagelBotLocationChoice(player_id):	
-	var best_direct_score = 0
-	var best_indirect_score = 0
+func getMnagelBotLocationChoice(player_id, perc):	
+	var best_score_1 = 0 # in connection reach
+	var best_score_2 = 0 # in safe reach
+	var best_score_3 = 0 # other
 	var best_node = buggles_nodes[0]
 	
 	for pivot in buggles_nodes:
 		# only consider outside of safe zones
 		if not canPlaceCore(pivot.position):
 			continue
+			
+		# we need some non-determinism to make multiple instances of the bot feasible
+		if rng.randi_range(0, 100) > perc:
+			continue # disregard node for choice 
 		
-		var pivot_direct_score = 0
-		var pivot_indirect_score = 0
+		var pivot_score_1 = 0
+		var pivot_score_2 = 0
+		var pivot_score_3 = 0
 		for other in buggles_nodes:
+			# we need some non-determinism to make multiple instances of the bot feasible
+			if rng.randi_range(0, 100) > perc:
+				continue # disregard node for scoring 
+			
 			var distance = (pivot.position - other.position).length()
-			if distance <= safe_zone:
-				pivot_direct_score += 1
+			if distance <= global.connection_maxlength:
+				pivot_score_1 += 1
+			if distance <= global.safezone_radius:
+				pivot_score_2 += 1
 			else:
-				pivot_indirect_score += 1 / (distance/safe_zone)
-		if pivot_direct_score + pivot_indirect_score >= best_direct_score + best_indirect_score:
-			best_direct_score = pivot_direct_score
-			best_indirect_score = pivot_indirect_score
+				pivot_score_3 += 1 / pow(distance/global.connection_maxlength, 1.9)
+		if pivot_score_1 + pivot_score_2 + pivot_score_3 >= best_score_1 + best_score_2 + best_score_3:
+			best_score_1 = pivot_score_1
+			best_score_2 = pivot_score_2
+			best_score_3 = pivot_score_3
 			best_node = pivot
 	
-	print("MNA bot acting for player %s, winning score %d direct + %.1f indirect"  
-	% [players.keys()[player_id - 1], best_direct_score, best_indirect_score] 
+	print("MNA bot (%d) acting for player %s, winning score %.1f+%.1f+%.1f"  
+	% [perc, players.keys()[player_id - 1], best_score_1, best_score_2, best_score_3] 
 	)
 	return best_node.position	
 
@@ -259,12 +271,13 @@ func _process(_delta):
 					if not turn_msg_displayed:
 						showMessage("Click somewhere to input secondary slime core")
 						turn_msg_displayed = true
-			# Bot thinking delay; a random delay
 			else:
 				showMessage("[Bot] Thinking ...")
 				# Bot thinking delay, a random delay
 				if bot_thinking.is_stopped():
-					bot_thinking.start(rng.randf_range(0.6, 1.8))
+					var bot_think_delay = rng.randf_range(0.6, 1.8)
+					bot_think_delay = 0
+					bot_thinking.start(bot_think_delay)
 
 	# If nobody is playing, aka: buggles are moving
 	else:

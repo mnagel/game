@@ -4,6 +4,7 @@ extends Node
 # Determine the type of app this is, and load the entry point for that type
 func _ready():
 	print("Application started")
+	global.rng.randomize()
 	# var menu = "res://client/client-entry.tscn"
 	var menu = "res://scenes/player-menu.tscn"
 	if OS.has_feature("server"):
