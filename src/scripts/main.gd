@@ -60,7 +60,6 @@ var max_limits = global.max_limits
 onready var sfx = $sfx
 onready var round_sfx = $round_sfx
 onready var game_over_sfx = $game_over_sfx
-onready var bg_music = $bg_music
 
 # Random number generator
 var rng = global.rng
@@ -315,7 +314,6 @@ func _process(_delta):
 		showMessage("Game Over!", true)
 		if global.sound:
 			game_over_sfx.play()
-		bg_music.stop()
 		classifiePlayers()
 		winner_label.text = "Winner is " + global.players[global.order[0]]["name"]
 		game_over_popup.popup()
@@ -363,8 +361,6 @@ func _ready():
 		if global.sound:
 			round_sfx.stream = load("res://assets/sound/round_" + str(current_round) +".wav")
 			round_sfx.play()
-		else:
-			bg_music.stop()
 		round_anim_label.text = "ROUND " + str(current_round)
 		animation_player.play("round")
 		if global.sound:
@@ -447,11 +443,9 @@ func _on_pause_pressed():
 func _on_sound_pressed():
 	global.sound = not global.sound
 	if global.sound:
-		bg_music.play()
 		sound_btn.text = "SOUND:ON"
 	else:
 		sound_btn.text = "SOUND:OFF"
-		bg_music.stop()
 
 func _on_next_round_btn_pressed():
 	timeout_popup.visible = false
