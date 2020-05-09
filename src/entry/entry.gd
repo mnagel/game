@@ -4,8 +4,12 @@ extends Node
 # Determine the type of app this is, and load the entry point for that type
 func _ready():
 	print("Application started")
+	# var menu = "res://client/client-entry.tscn"
 	var menu = "res://scenes/player-menu.tscn"
-	if OS.has_feature("client"):
+	if OS.has_feature("server"):
+		print("Is server")
+		get_tree().change_scene("res://server/server-entry.tscn")
+	elif OS.has_feature("client"):
 		print("Is client")
 		get_tree().change_scene(menu)
 	# When running from the editor, this is how we'll default to being a client
