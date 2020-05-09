@@ -20,6 +20,7 @@ var margin = global.margin
 # vfx and sfx nodes
 onready var donut = $donut
 onready var sfx = $sfx
+onready var explosion = $explosion
 
 # Random number generator
 var rng = global.rng
@@ -104,6 +105,11 @@ func on_area_entered(area):
 		# Buggle outline
 		donut.visible = true
 		donut.modulate = ColorN(area.color)
+		
+		# Explosion
+		explosion.emitting = true
+		explosion.modulate = ColorN(area.color)
+		
 		# Sound effects
 		if global.sound:
 			sfx.pitch_scale = clamp(float(distance) - 1, 0.5, 3.0)
