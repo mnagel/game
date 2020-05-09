@@ -268,6 +268,8 @@ func _process(_delta):
 				else:
 					if not turn_msg_displayed:
 						showMessage("Click somewhere to input secondary slime core")
+						if global.sound:
+							sfx.play()
 						turn_msg_displayed = true
 			else:
 				showMessage("[Bot] Thinking ...")
@@ -286,7 +288,7 @@ func _process(_delta):
 			else:
 				showMessage("Preparing next round. Reflect upon your actions.", true)
 		else:
-			showMessage("id210944 should not happen", true)
+			showMessage("Buggles are happy.", true)
 		player_timer.stop()
 		global.highlighted = "none"  # It's no one's turn, when buggles are moving
 		# To prevent countdown from showing 0 when nobody is playing
