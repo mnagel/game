@@ -18,7 +18,6 @@ var players = global.players
 var turn_msg_displayed = false
 
 # Rounds 
-var current_round = 1
 var num_rounds = 10
 
 # Timers
@@ -224,13 +223,13 @@ func showMessage(msg, clear = false):
 
 # Builtin
 func _process(_delta):
-	if connected_buggles >= buggles_count and current_round <= num_rounds:
+	if connected_buggles >= buggles_count and global.current_round <= num_rounds:
 		connected_buggles = 0
 		if len(buggles_nodes):
 			pause_buggles = true
 		else:
 			# New round
-			if start_next_round_timer.is_stopped() and current_round < num_rounds:
+			if start_next_round_timer.is_stopped() and global.current_round < num_rounds:
 				showMessage("Reflect upon your actions.", true)
 				start_next_round_timer.start()
 			else:  # Game Over`
@@ -327,7 +326,7 @@ func _process(_delta):
 		set_process(false)
 
 	# Update the round label
-	round_label.text = str(current_round) + "/" + str(num_rounds)
+	round_label.text = str(global.current_round) + "/" + str(num_rounds)
 	# Classifie the players according to their total score
 	global.order = classifiePlayers()
 
@@ -359,9 +358,9 @@ func _ready():
 		start_timer.start()
 		game_over = false
 		if global.sound:
-			round_sfx.stream = load("res://assets/sound/round_" + str(current_round) +".wav")
+			round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) +".wav")
 			round_sfx.play()
-		round_anim_label.text = "ROUND " + str(current_round)
+		round_anim_label.text = "ROUND " + str(global.current_round)
 		animation_player.play("round")
 		if global.sound:
 			sound_btn.text = "SOUND:ON"
@@ -379,7 +378,7 @@ func on_start_timer_timeout():
 	pause_buggles = not pause_buggles
 
 func on_start_next_round_timer_timeout():
-	current_round += 1
+	global.current_round += 1
 	# Save score to variable
 	for key in players:
 		players[key]["total_score"] += players[key]["score"]
@@ -395,10 +394,10 @@ func on_start_next_round_timer_timeout():
 	primary_core_phase = true
 	current_player = 1
 	start_timer.start()
-	round_anim_label.text = "ROUND " + str(current_round)
+	round_anim_label.text = "ROUND " + str(global.current_round)
 	animation_player.play("round")
 	if global.sound:
-		round_sfx.stream = load("res://assets/sound/round_" + str(current_round) +".wav")
+		round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) +".wav")
 		round_sfx.play()
 
 func on_bot_thinking_timeout():
@@ -416,7 +415,7 @@ func on_player_timer_timeout():
 		player_timer.start()
 	elif slimecores.size == 0:
 		showMessage("Nobody played, moving on to next round")
-		current_round += 1
+		global.current_round += 1
 
 func _on_restart_pressed():
 	if get_tree().paused:

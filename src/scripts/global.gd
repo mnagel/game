@@ -15,6 +15,8 @@ var players = {
 			"bot": true
 		}
 }
+
+var current_round = 1
 var current_player = 1
 var num_players = 2
 var highlighted = "red"
