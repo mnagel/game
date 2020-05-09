@@ -70,23 +70,29 @@ var rng = global.rng
 var game_over = false
 var tutorial = global.tutorial
 
-# Functions
-func tryPutCore(position):
-	var instancedSlime = slimecore.instance()
-	instancedSlime.primary = primary_core_phase
-	instancedSlime.position = position
-
+func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
 	if not primary_core_phase:
 		for slime in slimecores:
 			if slime.primary:
-				var slimes_distance = slime.position - instancedSlime.position
+				var slimes_distance = slime.position - position
 				if slimes_distance.length() <= safe_zone:
 					return false
 			else:
 				# secondary cores may be closeby, because their position is not known to the player
 				continue
-	
+	return true
+
+
+# Functions
+func tryPutCore(position):
+	if not canPlaceCore(position):
+		return false
+
+	var instancedSlime = slimecore.instance()
+	instancedSlime.primary = primary_core_phase
+	instancedSlime.position = position
+
 	# core can actually be put here
 	if global.sound:
 		sfx.play()
@@ -102,8 +108,39 @@ func tryPutCore(position):
 func warnPlayer(): # Warn the player visually
 	warn_player.play("veryClose")
 
-func getBotLocationChoice():
-	return getMidstPosition() + getRandomPosition() * rng.randf_range(0.2, 0.5)
+func getBotLocationChoice(player_id):
+	if player_id == 3:
+		return getMnagelBotLocationChoice(player_id)
+	else:
+		return getMidstPosition() + getRandomPosition() * rng.randf_range(0.2, 0.5)
+		
+func getMnagelBotLocationChoice(player_id):	
+	var best_direct_score = 0
+	var best_indirect_score = 0
+	var best_node = buggles_nodes[0]
+	
+	for pivot in buggles_nodes:
+		# only consider outside of safe zones
+		if not canPlaceCore(pivot.position):
+			continue
+		
+		var pivot_direct_score = 0
+		var pivot_indirect_score = 0
+		for other in buggles_nodes:
+			var distance = (pivot.position - other.position).length()
+			if distance <= safe_zone:
+				pivot_direct_score += 1
+			else:
+				pivot_indirect_score += 1 / (distance/safe_zone)
+		if pivot_direct_score + pivot_indirect_score >= best_direct_score + best_indirect_score:
+			best_direct_score = pivot_direct_score
+			best_indirect_score = pivot_indirect_score
+			best_node = pivot
+	
+	print("MNA bot acting for player %s, winning score %d direct + %.1f indirect"  
+	% [players.keys()[player_id - 1], best_direct_score, best_indirect_score] 
+	)
+	return best_node.position	
 
 func classifiePlayers():
 	var posts = {}
@@ -355,7 +392,7 @@ func on_start_next_round_timer_timeout():
 
 func on_bot_thinking_timeout():
 	while true:	
-		if tryPutCore(getBotLocationChoice()):
+		if tryPutCore(getBotLocationChoice(current_player)):
 			break
 		else:
 			# position was illegal. try again
