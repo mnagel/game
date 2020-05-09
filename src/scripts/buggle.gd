@@ -143,9 +143,7 @@ func reset():
 	distance = 0
 
 func _ready():
-	rng.randomize()
 	var rny = rng.randf_range(-100.0, 100.0)
-	rng.randomize()
 	var rnx = rng.randf_range(-100.0, 100.0)
 	direction = Vector2(rnx, rny)
 	direction = direction.normalized()

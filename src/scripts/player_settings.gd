@@ -3,7 +3,6 @@ extends Control
 
 func getRandName():
 	var words = ["ava", "b0t", "gr3", "blu", "r3d", "h4x", "cyb", "nix", "tux", "win"]
-	randomize()
 	return words[int(rand_range(1, words.size() - 1)) - 1] + str(int(rand_range(1, 9)))
 
 

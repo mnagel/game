@@ -144,9 +144,7 @@ func removeSlimes():
 	slimecores = []
 
 func getRandomPosition():
-	rng.randomize()
 	var rx = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
-	rng.randomize()
 	var ry = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
 	var pos = Vector2(rx, ry)
 	return pos
@@ -301,7 +299,6 @@ func _ready():
 		set_process(false)
 	else:
 		set_process(true)
-		rng.randomize()
 		generateBuggles()
 		start_timer.connect("timeout", self, "on_start_timer_timeout")
 		start_timer.start()
