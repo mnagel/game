@@ -12,7 +12,10 @@ extends Node
 #    of players. Empty lobbies should be discarded client-side.
 
 var players = {}
+var lobbies = {}
+var games = {}
 var lobbyCounter = 0
+var gameCounter = 0
 
 remote func on_register_self(newPlayerName):
 	var newPlayerId = get_tree().get_rpc_sender_id()
@@ -47,6 +50,20 @@ remote func on_leave_lobby(lobbyId):
 	if self.lobbies[lobbyId].has(id):
 		self.lobbies[lobbyId].erase(id)
 		rpc("on_update_lobby", lobbyId, self.lobbies[lobbyId])
+
+remote func on_start_game(lobbyId):
+	if not self.lobbies[lobbyId].has(get_tree().get_rpc_sender_id()):
+		# Sender not in the lobby, ignore the request.
+		return
+	# Put everyone into the game.
+	gameCounter += 1
+	var gameId = gameCounter
+	self.games[gameId] = self.lobbies[lobbyId]
+	# Delete the lobby when the game starts.
+	self.lobbies.erase(lobbyId)
+	rpc("on_update_lobby", lobbyId, [])
+	for playerId in self.games[gameId]:
+		rpc_id(playerId, "on_start_game", gameId, self.games[gameId])
 
 func _ready():
 	get_tree().connect("network_peer_disconnected", self, "unregister_player")
