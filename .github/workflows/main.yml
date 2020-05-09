@@ -21,4 +21,6 @@ jobs:
         godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/${{ matrix.godot }}/Godot_v${{ matrix.godot }}-stable_linux_headless.64.zip
         godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/${{ matrix.godot }}/Godot_v${{ matrix.godot }}-stable_export_templates.tpz
         relative_project_path: ./src/
-        create_release: false
+        create_release: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
