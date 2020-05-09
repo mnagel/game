@@ -24,3 +24,8 @@ jobs:
         create_release: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish to GitHub pages
+      run: ./export/export-to-gh-pages.sh /home/runner/.local/share/godot/builds/HTML5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
