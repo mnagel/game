@@ -126,8 +126,6 @@ tracks/0/keys = {
 
 [sub_resource type="Environment" id=15]
 background_mode = 4
-auto_exposure_min_luma = 0.5
-auto_exposure_max_luma = 2.0
 glow_enabled = true
 glow_levels/3 = false
 glow_levels/4 = true
@@ -322,6 +320,7 @@ custom_styles/hover = ExtResource( 12 )
 custom_styles/pressed = ExtResource( 9 )
 custom_styles/normal = ExtResource( 10 )
 custom_fonts/font = ExtResource( 11 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "RESTART"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -337,6 +336,7 @@ custom_styles/hover = ExtResource( 12 )
 custom_styles/pressed = ExtResource( 9 )
 custom_styles/normal = ExtResource( 10 )
 custom_fonts/font = ExtResource( 11 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "EXIT"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -352,6 +352,7 @@ custom_styles/hover = ExtResource( 12 )
 custom_styles/pressed = ExtResource( 9 )
 custom_styles/normal = ExtResource( 10 )
 custom_fonts/font = ExtResource( 11 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "PAUSE"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -367,6 +368,7 @@ custom_styles/hover = ExtResource( 12 )
 custom_styles/pressed = ExtResource( 9 )
 custom_styles/normal = ExtResource( 10 )
 custom_fonts/font = ExtResource( 11 )
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 text = "SOUND:ON"
 __meta__ = {
 "_edit_use_anchors_": false
