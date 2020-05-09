@@ -1,7 +1,7 @@
 extends Node2D
 
-# Seperates between the 2nd slime core and the 1st, take a look at half-slime.gd
-var half = true
+# separates the phases of a round, i.e. primary and secondary slime core placement
+var primary_core_phase = true
 
 # Buggles movement
 var connected_buggles = 0
@@ -47,11 +47,10 @@ onready var warn_player = $warn_player
 onready var tutorial_popup = $tutorial
 
 # Slimes
-var slime = preload("res://scenes/slime.tscn")
-var half_slime = preload("res://scenes/half-slime.tscn")
+var slimecore = preload("res://scenes/slimecore.tscn")
 var player_status = preload("res://scenes/player_status.tscn")
 var slimes_nodes = []
-var safe_zone = 30  # The minimum distance between the primary and 2nd slimes
+var safe_zone = 90  # The minimum distance between the primary and 2nd slimes
 
 # Viewport limits
 var margin = global.margin
@@ -73,18 +72,18 @@ var tutorial = global.tutorial
 
 # Functions
 func putSlime(position):
-	var instancedSlime = half_slime.instance()
-	if half:
-		instancedSlime = half_slime.instance()
-	else:
-		instancedSlime = slime.instance()
+	# position == null is used to trigger AI placement
+	var instancedSlime = slimecore.instance()
+	instancedSlime.primary = primary_core_phase
+
 	if position == null:
 		instancedSlime.position = getMidstPosition()+ getRandomPosition()*rng.randf_range(0.2, 0.5)
 	else:
 		instancedSlime.position = position
+
 	# Safe zone
 	for slime in slimes_nodes:
-		if slime.half and not half:
+		if slime.primary and not primary_core_phase:
 			
 			var slimes_distance = slime.position - instancedSlime.position
 			if slimes_distance.length() <= safe_zone:
@@ -98,10 +97,9 @@ func putSlime(position):
 					warnPlayer()
 					showMessage("You can't input very close to the primary slime\n", true)
 					return
-	if position != null:
-		# Only human clicks will make sfx
-		if global.sound:
-			sfx.play()
+	if global.sound:
+		sfx.play()
+
 	instancedSlime.color = players.keys()[current_player - 1]
 	slimes_nodes.append(instancedSlime)
 	add_child(instancedSlime)
@@ -204,8 +202,8 @@ func _process(_delta):
 
 	# Hide slimes while inputing to prevent cheating
 	for slime in slimes_nodes:
-		if slime.half:  # the primary slimes
-			slime.visible = (not pause_buggles) or (not half)
+		if slime.primary:
+			slime.visible = (not pause_buggles) or (not primary_core_phase)
 		else:  # the secondary slimes
 			slime.visible = (not pause_buggles)
 
@@ -224,13 +222,11 @@ func _process(_delta):
 			global.highlighted = players.keys()[current_player - 1]
 			# If a human is playing
 			if not isPlayerBot(current_player - 1):
-				if half:
-					# Primary slime input
+				if primary_core_phase:
 					if not turn_msg_displayed:
 						showMessage("Click somewhere to input primary slime core")
 						turn_msg_displayed = true
 				else:
-					# Secondary slime input
 					if not turn_msg_displayed:
 						showMessage("Click somewhere to input secondary slime core")
 						turn_msg_displayed = true
@@ -259,12 +255,12 @@ func _process(_delta):
 
 	# If all players have played their roles
 	if current_player > num_players:
-		if len(buggles_nodes) and not half:  # if this is the secondary slime input
+		if len(buggles_nodes) and not primary_core_phase:  # if this is the secondary slime input
 			showMessage("resetting now", true)
 			resetBuggles()
-		if half and slimes_nodes.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
+		if primary_core_phase and slimes_nodes.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
 			current_player = 1  # First player's turn
-			half = false
+			primary_core_phase = false
 		if slimes_nodes.size() != 0: 
 			pause_buggles = false  # make buggles move
 		else:
@@ -357,7 +353,7 @@ func on_start_next_round_timer_timeout():
 	# Build round
 	generateBuggles()
 	# Start the round
-	half = true
+	primary_core_phase = true
 	current_player = 1
 	start_timer.start()
 	round_anim_label.text = "ROUND " + str(current_round)
@@ -415,9 +411,9 @@ func _on_next_round_btn_pressed():
 	resetBuggles()
 	start_timer.start()
 	current_player = 1
-	if not half:
+	if not primary_core_phase:
 		on_start_next_round_timer_timeout() # modern problems, require modern solutions xD
-	half = false
+	primary_core_phase = false
 
 func _on_play_btn_pressed():
 	tutorial_popup.visible = false

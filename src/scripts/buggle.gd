@@ -159,12 +159,3 @@ func _physics_process(delta):
 		if position.y <= min_limits.y + margin or position.y >= max_limits.y - margin:
 			direction.y = -direction.y
 		position += direction * speed
-
-	# some boolean stuff, play with it to understand it
-	if connection != null:
-		connection.visible = (not get_parent().pause_buggles) or (not get_parent().half)
-		donut.visible = (not get_parent().pause_buggles) or (not get_parent().half)
-
-
-
-
