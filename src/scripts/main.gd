@@ -76,13 +76,18 @@ func tryPutCore(position):
 	instancedSlime.primary = primary_core_phase
 	instancedSlime.position = position
 
-	# Safe zone
-	for slime in slimecores:
-		if slime.primary and not primary_core_phase:
-			
-			var slimes_distance = slime.position - instancedSlime.position
-			if slimes_distance.length() <= safe_zone:
-				return false
+	# secondary cores need to stay away from primary cores
+	if not primary_core_phase:
+		for slime in slimecores:
+			if slime.primary:
+				var slimes_distance = slime.position - instancedSlime.position
+				if slimes_distance.length() <= safe_zone:
+					return false
+			else:
+				# secondary cores may be closeby, because their position is not known to the player
+				continue
+	
+	# core can actually be put here
 	if global.sound:
 		sfx.play()
 
