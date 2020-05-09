@@ -25,7 +25,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Look at result
-      run: |
-        ls -la /home/runner/.local/share/godot/builds/
-        ls -la /home/runner/.local/share/godot/builds/*
+    - name: Publish to GitHub pages
+      run: ./export/export-to-gh-pages.sh /home/runner/.local/share/godot/builds/HTML5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
