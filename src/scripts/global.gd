@@ -3,7 +3,7 @@ extends Node
 
 # Player's stuff
 var players = {"red": {"name": "Red", "score": 0, "total_score": 0, "bot": false},
-                "blue": {"name": "Blue", "score": 0, "total_score": 0, "bot": true}}
+				"blue": {"name": "Blue", "score": 0, "total_score": 0, "bot": true}}
 var current_player = 1
 var num_players = 2
 var highlighted = "red"
@@ -30,7 +30,6 @@ var max_limits = Vector2(440, 440)
 
 # Anti things xD
 var antialiasing = true
-var anticheat = false
 
 # Sfx stuff
 var sound = true

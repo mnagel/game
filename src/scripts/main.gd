@@ -69,7 +69,6 @@ var rng = global.rng
 
 # Gameplay
 var game_over = false
-var anticheat = global.anticheat
 var tutorial = global.tutorial
 var hide_mouse = true
 
@@ -297,31 +296,12 @@ func _process(delta):
 			players_order.add_child(ps)
 		set_process(false)
 
-	# anti cheat mode
-	if anticheat:
-		var mouse_pos = get_global_mouse_position()
-		if (
-			mouse_pos.x > min_limits.x
-			and mouse_pos.y > min_limits.y
-			and mouse_pos.x < max_limits.x
-			and mouse_pos.y < max_limits.y
-		) and hide_mouse:
-			Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-
-
 	# Update the round label
 	round_label.text = str(current_round) + "/" + str(num_rounds)
 	# Classifie the players according to their total score
 	global.order = classifiePlayers()
 
 func _input(event):
-	# take a look at Project>Settings>InputMap in the godot editor, to understand from where 'show_mouse_pos' is from
-	if event.is_action_pressed("show_mouse_pos") and anticheat:
-		show_mouse()
-	elif event.is_action_released("show_mouse_pos"):
-		hide_mouse = true
 	if event is InputEventMouseButton and not get_tree().paused and not timeout_popup.visible:
 		if event.is_pressed() and event.button_index == BUTTON_LEFT and pause_buggles:
 			var mouse_pos = get_global_mouse_position()

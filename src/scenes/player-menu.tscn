@@ -86,7 +86,7 @@ __meta__ = {
 
 [node name="add" type="Button" parent="vbox"]
 margin_right = 246.0
-margin_bottom = 45.0
+margin_bottom = 59.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/hover = ExtResource( 5 )
@@ -100,9 +100,9 @@ __meta__ = {
 }
 
 [node name="play" type="Button" parent="vbox"]
-margin_top = 49.0
+margin_top = 63.0
 margin_right = 246.0
-margin_bottom = 94.0
+margin_bottom = 122.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/hover = ExtResource( 5 )
@@ -111,16 +111,6 @@ custom_styles/normal = SubResource( 2 )
 custom_fonts/font = SubResource( 4 )
 custom_colors/font_color = Color( 0.584314, 0.647059, 0.65098, 1 )
 text = "PLAY"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="anticheat" type="CheckBox" parent="vbox"]
-margin_top = 98.0
-margin_right = 246.0
-margin_bottom = 122.0
-text = "ANTI CHEAT MODE"
-align = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -140,25 +130,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="anticheat" type="Label" parent="."]
-margin_left = 444.415
-margin_top = 25.6147
-margin_right = 640.415
-margin_bottom = 296.615
-custom_fonts/font = SubResource( 7 )
-text = "NOTE:
-In anti cheat mode the cursor will be hidden in the play area, to get a hint about it's location
-you can press on 'S' or \"CTRL\""
-align = 1
-valign = 1
-autowrap = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="sfx" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource( 4 )
 volume_db = 10.0
 [connection signal="pressed" from="vbox/add" to="." method="_on_add_pressed"]
 [connection signal="pressed" from="vbox/play" to="." method="_on_play_pressed"]
-[connection signal="toggled" from="vbox/anticheat" to="." method="_on_anticheat_toggled"]

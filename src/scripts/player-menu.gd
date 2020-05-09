@@ -7,16 +7,12 @@ var player_settings = preload("res://scenes/player_settings.tscn")
 # Nodes
 onready var players_container = $scroll/container
 onready var lp_msg = $messages # when players are less than 2
-onready var anticheat_cbox = $vbox/anticheat # checkbox
-onready var anticheat = $anticheat
-
 
 onready var sfx = $sfx
 
 # Builtin
 func _ready():
 	global.num_players = len(global.players.keys())
-	anticheat_cbox.pressed = global.anticheat
 	for key in global.players.keys(): # get the available players
 		var instancedPlayerSettings = player_settings.instance()
 		instancedPlayerSettings.color = key
@@ -30,7 +26,6 @@ func _process(delta):
 		lp_msg.visible = true
 	else:
 		lp_msg.visible = false
-	anticheat.visible = global.anticheat
 
 # Signals
 func _on_play_pressed():
@@ -58,6 +53,3 @@ func _on_add_pressed():
 		global.num_players += 1
 		players_container.add_child(instancedPlayerSettings)
 		if global.sound: sfx.play()
-
-func _on_anticheat_toggled(btn):
-	global.anticheat = btn
