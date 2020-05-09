@@ -20,7 +20,7 @@ func _ready():
 		instancedPlayerSettings.bot = global.players[key]["bot"]
 		players_container.add_child(instancedPlayerSettings)
 
-func _process(delta):
+func _process(_delta):
 	var _players = players_container.get_children()
 	if len(_players) < 2: # minimum number of players
 		lp_msg.visible = true

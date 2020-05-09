@@ -23,7 +23,7 @@ var num_rounds = 10
 
 # Timers
 onready var start_timer = $start_timer
-onready var stop_timer = $stop_timer
+onready var start_next_round_timer = $start_next_round_timer
 onready var bot_thinking = $bot_thinking
 onready var player_timer = $player_timer
 
@@ -70,7 +70,6 @@ var rng = global.rng
 # Gameplay
 var game_over = false
 var tutorial = global.tutorial
-var hide_mouse = true
 
 # Functions
 func putSlime(position):
@@ -137,21 +136,9 @@ func isPlayerBot(id):
 		return true
 	return false
 
-func show_mouse():
-	var mouse_pos = get_global_mouse_position()
-	if (
-		mouse_pos.x > min_limits.x
-		and mouse_pos.y > min_limits.y
-		and mouse_pos.x < max_limits.x
-		and mouse_pos.y < max_limits.y
-	):
-		mouse_pos_indicator.position = mouse_pos
-		manim.play("show_mouse")
-		hide_mouse = false
-
 func generateBuggles():
 	buggles_nodes = []
-	for i in range(0, buggles_count):
+	for _i in range(0, buggles_count):
 		var instancedBuggle = buggle.instance()
 		instancedBuggle.position = getRandomPosition()
 		buggles_nodes.append(instancedBuggle)
@@ -198,16 +185,16 @@ func showMessage(msg, clear = false):
 	return
 
 # Builtin
-func _process(delta):
+func _process(_delta):
 	if connected_buggles >= buggles_count and current_round <= num_rounds:
 		connected_buggles = 0
 		if len(buggles_nodes):
 			pause_buggles = true
 		else:
 			# New round
-			if stop_timer.is_stopped() and current_round < num_rounds:
-				showMessage("", true)
-				stop_timer.start()
+			if start_next_round_timer.is_stopped() and current_round < num_rounds:
+				showMessage("Reflect upon your actions.", true)
+				start_next_round_timer.start()
 			else:  # Game Over`
 				# Save score
 				for key in players:
@@ -225,7 +212,7 @@ func _process(delta):
 	# Handle turns, buggles etc
 	if pause_buggles:
 		# Clear message box
-		if not turn_msg_displayed: showMessage("", true)
+		if not turn_msg_displayed: showMessage("id128736 should not happen", true)
 		# Start countdown
 		if player_timer.is_stopped():
 			player_timer.start()
@@ -257,8 +244,13 @@ func _process(delta):
 	# If nobody is playing, aka: buggles are moving
 	else:
 		# display reviewing message, only when there are slimes
-		if slimes_nodes.size(): showMessage("Reviewing slime activity ...", true)  # Clear the message box
-		else: showMessage("", true)
+		if slimes_nodes.size():
+			if start_next_round_timer.is_stopped():
+				showMessage("Reviewing slime activity ...", true)
+			else:
+				showMessage("Preparing next round. Reflect upon your actions.", true)
+		else:
+			showMessage("id210944 should not happen", true)
 		player_timer.stop()
 		global.highlighted = "none"  # It's no one's turn, when buggles are moving
 		# To prevent countdown from showing 0 when nobody is playing
@@ -268,11 +260,13 @@ func _process(delta):
 	# If all players have played their roles
 	if current_player > num_players:
 		if len(buggles_nodes) and not half:  # if this is the secondary slime input
+			showMessage("resetting now", true)
 			resetBuggles()
 		if half and slimes_nodes.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
 			current_player = 1  # First player's turn
 			half = false
-		if slimes_nodes.size() != 0: pause_buggles = false  # make buggles move
+		if slimes_nodes.size() != 0: 
+			pause_buggles = false  # make buggles move
 		else:
 			# If timeout and nobody has played
 			player_timer.stop()
@@ -349,7 +343,7 @@ func on_start_timer_timeout():
 	# Stop buggles after an interval
 	pause_buggles = not pause_buggles
 
-func on_stop_timer_timeout():
+func on_start_next_round_timer_timeout():
 	current_round += 1
 	# Save score to variable
 	for key in players:
@@ -381,7 +375,7 @@ func on_player_timer_timeout():
 	if pause_buggles:
 		player_timer.start()
 	elif slimes_nodes.size == 0:
-		showMessage("No body played, moving on to next round")
+		showMessage("Nobody played, moving on to next round")
 		current_round += 1
 
 func _on_restart_pressed():
@@ -421,10 +415,12 @@ func _on_next_round_btn_pressed():
 	resetBuggles()
 	start_timer.start()
 	current_player = 1
-	if not half: on_stop_timer_timeout() # modern problems, require modern solutions xD
+	if not half:
+		on_start_next_round_timer_timeout() # modern problems, require modern solutions xD
 	half = false
 
 func _on_play_btn_pressed():
 	tutorial_popup.visible = false
 	global.tutorial = false
 	_on_restart_pressed()
+
