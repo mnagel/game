@@ -4,13 +4,13 @@ var color = "null"
 
 
 func _process(delta):
+	var score = global.players[color]["score"]
+	$full_round_progress.region_rect = Rect2(0, 0, float(160 * score / 60.0), 8)
+	$highlighted.visible = (global.highlighted == color)
 	update()
 
 
 func update():
-	$full_round_progress.region_rect = Rect2(0, 0, float(160 * int($round_score.text) / 60.0), 8)
-	$highlighted.visible = (global.highlighted == color)
-	
 	$player_name.text = global.players[color]["name"]
 	$round_score.text = str("R", global.current_round, ": ", global.players[color]["score"])
 	$total_score.text = str(global.players[color]["total_score"])

@@ -89,7 +89,7 @@ scale = Vector2( 0.6, 0.6 )
 texture = ExtResource( 3 )
 
 [node name="full_round_progress" type="Sprite" parent="."]
-modulate = Color( 0.203922, 0.286275, 0.368627, 1 )
+modulate = Color( 0.223529, 1, 0.0784314, 1 )
 position = Vector2( 7.42791, 52.9579 )
 texture = ExtResource( 5 )
 centered = false
