@@ -467,10 +467,6 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="playfield" type="Sprite" parent="."]
-texture = ExtResource( 2 )
-centered = false
-
 [node name="mouse_pos" type="Sprite" parent="."]
 modulate = Color( 0.537255, 0.0156863, 0.898039, 1 )
 scale = Vector2( 1e-05, 1e-05 )
