@@ -15,7 +15,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Buggle Connect Clone"
+config/name="SuperNeoNova"
 run/main_scene="res://entry/entry.tscn"
 run/low_processor_mode=true
 config/icon="res://icon.png"

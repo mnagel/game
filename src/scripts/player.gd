@@ -22,12 +22,13 @@ func getRandName():
 		"Cybel", 
 		"Spark", 
 		"Plier", 
-		"Oyz"
+		"Oyz",
+		"Fooba"
 	]
 	return names[randi() % names.size()]
 
 var player_identifier = ""
-var player_name = getRandName()
+var player_name = getRandName() # FIXME broken for initial two players
 var color = ""
 var bot = false
 var file = ""
