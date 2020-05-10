@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/human_toggle.png-a52dd66d3445c1543ad1c5277dd4a975.stex"
+path="res://.import/bot_toggle.png-7aa6585261a2df63b95ef847c78bf413.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/player_settings/human_toggle.png"
-dest_files=[ "res://.import/human_toggle.png-a52dd66d3445c1543ad1c5277dd4a975.stex" ]
+source_file="res://assets/player/bot_toggle.png"
+dest_files=[ "res://.import/bot_toggle.png-7aa6585261a2df63b95ef847c78bf413.stex" ]
 
 [params]
 

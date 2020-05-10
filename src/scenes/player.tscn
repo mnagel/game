@@ -1,11 +1,11 @@
 [gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://scripts/player_settings.gd" type="Script" id=1]
-[ext_resource path="res://assets/player_settings/ps_bg.png" type="Texture" id=2]
-[ext_resource path="res://assets/avatars/bot-blue.png" type="Texture" id=3]
-[ext_resource path="res://assets/player_settings/bot_toggle.png" type="Texture" id=4]
-[ext_resource path="res://assets/fonts/df_btn.tres" type="DynamicFont" id=5]
-[ext_resource path="res://assets/player_settings/human_toggle.png" type="Texture" id=6]
+[ext_resource path="res://scripts/player.gd" type="Script" id=1]
+[ext_resource path="res://assets/fonts/df_btn.tres" type="DynamicFont" id=2]
+[ext_resource path="res://assets/player/human_toggle.png" type="Texture" id=3]
+[ext_resource path="res://assets/player/ps_bg.png" type="Texture" id=4]
+[ext_resource path="res://assets/player/bot_toggle.png" type="Texture" id=5]
+[ext_resource path="res://assets/avatars/bot-blue.png" type="Texture" id=6]
 
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://assets/fonts/OpenSans-Bold.ttf"
@@ -25,7 +25,7 @@ font_path = "res://assets/fonts/OpenSans-Bold.ttf"
 size = 14
 font_data = SubResource( 4 )
 
-[node name="player_settings" type="Control"]
+[node name="player" type="Control"]
 margin_right = 246.0
 margin_bottom = 85.0
 rect_min_size = Vector2( 246, 85 )
@@ -36,7 +36,7 @@ __meta__ = {
 }
 
 [node name="ps_bg" type="Sprite" parent="."]
-texture = ExtResource( 2 )
+texture = ExtResource( 4 )
 centered = false
 __meta__ = {
 "_edit_lock_": true
@@ -49,8 +49,8 @@ margin_right = 195.154
 margin_bottom = 46.4277
 size_flags_horizontal = 2
 size_flags_vertical = 3
-custom_icons/off = ExtResource( 6 )
-custom_icons/on = ExtResource( 4 )
+custom_icons/off = ExtResource( 3 )
+custom_icons/on = ExtResource( 5 )
 custom_fonts/font = SubResource( 2 )
 flat = true
 align = 1
@@ -66,7 +66,7 @@ margin_bottom = 41.5587
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/normal = SubResource( 3 )
-custom_fonts/font = ExtResource( 5 )
+custom_fonts/font = ExtResource( 2 )
 custom_colors/font_color = Color( 0.172549, 0.243137, 0.313726, 1 )
 text = "Red"
 align = 1
@@ -89,7 +89,7 @@ flat = true
 [node name="avatar" type="Sprite" parent="."]
 position = Vector2( 220.111, 27.048 )
 scale = Vector2( 0.8, 0.8 )
-texture = ExtResource( 3 )
+texture = ExtResource( 6 )
 [connection signal="toggled" from="bot" to="." method="_on_bot_toggled"]
 [connection signal="text_changed" from="player_name" to="." method="_on_player_name_text_changed"]
 [connection signal="pressed" from="remove" to="." method="_on_remove_pressed"]

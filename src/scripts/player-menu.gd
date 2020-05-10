@@ -2,7 +2,7 @@ extends Control
 
 
 # Player node
-var player_settings = preload("res://scenes/player_settings.tscn")
+var Player = preload("res://scenes/player.tscn")
 
 # Nodes
 onready var players_container = $scroll/container
@@ -18,7 +18,7 @@ func _ready():
 		_on_add_pressed()
 	
 	for player in global.players.values(): # get the available players
-		var instancedPlayerSettings = player_settings.instance()
+		var instancedPlayerSettings = Player.instance()
 		instancedPlayerSettings.player_identifier = player["identifier"]
 		instancedPlayerSettings.player_name = player["name"]
 		instancedPlayerSettings.color = player["color"]
@@ -54,7 +54,7 @@ func _on_player_name_text_entered(new_text, extra_arg_0):
 
 func _on_add_pressed():
 	if len(global.available_colors):
-		var instancedPlayerSettings = player_settings.instance()
+		var instancedPlayerSettings = Player.instance()
 		players_container.add_child(instancedPlayerSettings)
 		if global.sound: sfx.play()
 		

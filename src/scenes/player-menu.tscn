@@ -2,13 +2,14 @@
 
 [ext_resource path="res://scripts/player-menu.gd" type="Script" id=1]
 [ext_resource path="res://assets/ps_window.png" type="Texture" id=2]
-[ext_resource path="res://assets/player_settings/players_settings_board.png" type="Texture" id=3]
+[ext_resource path="res://assets/player/players_settings_board.png" type="Texture" id=3]
 [ext_resource path="res://assets/sound/tap.wav" type="AudioStream" id=4]
 [ext_resource path="res://assets/Buttons/hover.tres" type="StyleBox" id=5]
 [ext_resource path="res://assets/Buttons/pressed.tres" type="StyleBox" id=6]
 [ext_resource path="res://assets/Buttons/normal.tres" type="StyleBox" id=7]
 [ext_resource path="res://assets/fonts/df_btn.tres" type="DynamicFont" id=8]
 [ext_resource path="res://assets/playfield.png" type="Texture" id=9]
+
 
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
@@ -27,7 +28,7 @@ font_data = SubResource( 3 )
 [sub_resource type="DynamicFontData" id=5]
 font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
 
-[sub_resource type="DynamicFont" id=13]
+[sub_resource type="DynamicFont" id=6]
 size = 14
 font_data = SubResource( 5 )
 
@@ -199,7 +200,7 @@ margin_left = -195.0
 margin_top = -153.0
 margin_right = 186.0
 margin_bottom = 154.0
-custom_fonts/font = SubResource( 13 )
+custom_fonts/font = SubResource( 6 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 text = "How to play:
 

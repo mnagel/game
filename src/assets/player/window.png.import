@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/ps_bg.png-f866ccd44cf88d1ec4c6c5028d715b9d.stex"
+path="res://.import/window.png-71543f09d0e0ae0532acff03763d63fd.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/player_settings/ps_bg.png"
-dest_files=[ "res://.import/ps_bg.png-f866ccd44cf88d1ec4c6c5028d715b9d.stex" ]
+source_file="res://assets/player/window.png"
+dest_files=[ "res://.import/window.png-71543f09d0e0ae0532acff03763d63fd.stex" ]
 
 [params]
 

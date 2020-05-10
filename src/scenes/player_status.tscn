@@ -29,7 +29,7 @@ font_data = SubResource( 5 )
 [sub_resource type="StreamTexture" id=7]
 flags = 4
 
-[node name="player_settings" type="Container"]
+[node name="player_score" type="Container"]
 margin_right = 175.0
 margin_bottom = 72.0
 rect_min_size = Vector2( 175, 70 )
