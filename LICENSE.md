@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2020 H3XBU4N34
+Copyright (c) 2020 SuperNeoNova Collaborators
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
