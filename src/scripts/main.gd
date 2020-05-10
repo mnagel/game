@@ -43,7 +43,7 @@ onready var manim = $manim
 onready var mouse_pos_indicator = $mouse_pos
 onready var timeout_popup = $timeout
 onready var warn_player = $warn_player
-onready var tutorial_popup = $tutorial
+
 
 # Slimes
 var slimecore = preload("res://scenes/slimecore.tscn")
@@ -65,7 +65,6 @@ var rng = global.rng
 
 # Gameplay
 var game_over = false
-var tutorial = global.tutorial
 
 func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
@@ -350,29 +349,25 @@ func _input(event):
 						showMessage("You can't input very close to the primary slime\n", true)
 
 func _ready():
-	if global.tutorial:
-		tutorial_popup.popup()
-		set_process(false)
+	set_process(true)
+	generateBuggles()
+	start_timer.connect("timeout", self, "on_start_timer_timeout")
+	start_timer.start()
+	game_over = false
+	if global.sound:
+		round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) +".wav")
+		round_sfx.play()
+	round_anim_label.text = "ROUND " + str(global.current_round)
+	animation_player.play("round")
+	if global.sound:
+		sound_btn.text = "SOUND:ON"
 	else:
-		set_process(true)
-		generateBuggles()
-		start_timer.connect("timeout", self, "on_start_timer_timeout")
-		start_timer.start()
-		game_over = false
-		if global.sound:
-			round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) +".wav")
-			round_sfx.play()
-		round_anim_label.text = "ROUND " + str(global.current_round)
-		animation_player.play("round")
-		if global.sound:
-			sound_btn.text = "SOUND:ON"
-		else:
-			sound_btn.text = "SOUND:OFF"
-		for key in players.keys():
-			var instancedPlayerStatus = player_status.instance()
-			instancedPlayerStatus.color = key
-			instancedPlayerStatus.update()
-			players_board.add_child(instancedPlayerStatus)
+		sound_btn.text = "SOUND:OFF"
+	for key in players.keys():
+		var instancedPlayerStatus = player_status.instance()
+		instancedPlayerStatus.color = key
+		instancedPlayerStatus.update()
+		players_board.add_child(instancedPlayerStatus)
 
 # Signals
 func on_start_timer_timeout():
@@ -459,7 +454,5 @@ func _on_next_round_btn_pressed():
 	primary_core_phase = false
 
 func _on_play_btn_pressed():
-	tutorial_popup.visible = false
-	global.tutorial = false
 	_on_restart_pressed()
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://scripts/player-menu.gd" type="Script" id=1]
 [ext_resource path="res://assets/ps_window.png" type="Texture" id=2]
@@ -7,6 +7,8 @@
 [ext_resource path="res://assets/Buttons/hover.tres" type="StyleBox" id=5]
 [ext_resource path="res://assets/Buttons/pressed.tres" type="StyleBox" id=6]
 [ext_resource path="res://assets/Buttons/normal.tres" type="StyleBox" id=7]
+[ext_resource path="res://assets/fonts/df_btn.tres" type="DynamicFont" id=8]
+[ext_resource path="res://assets/playfield.png" type="Texture" id=9]
 
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
@@ -21,6 +23,13 @@ font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
 [sub_resource type="DynamicFont" id=4]
 size = 18
 font_data = SubResource( 3 )
+
+[sub_resource type="DynamicFontData" id=5]
+font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
+
+[sub_resource type="DynamicFont" id=13]
+size = 14
+font_data = SubResource( 5 )
 
 [node name="player_menu" type="Control"]
 margin_right = 640.0
@@ -39,10 +48,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -123.0
-margin_top = -229.0
-margin_right = 123.0
-margin_bottom = 91.5
+margin_left = -303.241
+margin_top = -230.233
+margin_right = -57.2406
+margin_bottom = 226.767
 rect_min_size = Vector2( 246, 320.5 )
 scroll_horizontal_enabled = false
 __meta__ = {
@@ -51,7 +60,8 @@ __meta__ = {
 }
 
 [node name="players_settings_board" type="Sprite" parent="scroll"]
-position = Vector2( 121.406, 161.165 )
+position = Vector2( 121.406, 226.064 )
+scale = Vector2( 1, 1.40436 )
 texture = ExtResource( 3 )
 
 [node name="container" type="VBoxContainer" parent="scroll"]
@@ -64,10 +74,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = -123.0
-margin_top = -134.0
-margin_right = 123.0
-margin_bottom = -12.0
+margin_left = 14.0
+margin_top = -245.0
+margin_right = 260.0
+margin_bottom = -26.0
 rect_min_size = Vector2( 246, 96 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -78,7 +88,7 @@ __meta__ = {
 
 [node name="add" type="Button" parent="vbox"]
 margin_right = 246.0
-margin_bottom = 59.0
+margin_bottom = 70.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/hover = ExtResource( 5 )
@@ -91,10 +101,26 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="play" type="Button" parent="vbox"]
-margin_top = 63.0
+[node name="tutorial" type="Button" parent="vbox"]
+margin_top = 74.0
 margin_right = 246.0
-margin_bottom = 122.0
+margin_bottom = 144.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/hover = ExtResource( 5 )
+custom_styles/pressed = ExtResource( 6 )
+custom_styles/normal = ExtResource( 7 )
+custom_fonts/font = SubResource( 2 )
+custom_colors/font_color = Color( 0.584314, 0.647059, 0.65098, 1 )
+text = "TUTORIAL"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="play" type="Button" parent="vbox"]
+margin_top = 148.0
+margin_right = 246.0
+margin_bottom = 219.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/hover = ExtResource( 5 )
@@ -108,10 +134,10 @@ __meta__ = {
 }
 
 [node name="messages" type="Label" parent="."]
-margin_left = 216.243
-margin_top = 247.11
-margin_right = 418.243
-margin_bottom = 302.11
+margin_left = 36.425
+margin_top = 245.211
+margin_right = 238.425
+margin_bottom = 300.211
 custom_fonts/font = SubResource( 4 )
 text = "Add at least 2 players
 to play"
@@ -125,5 +151,73 @@ __meta__ = {
 [node name="sfx" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource( 4 )
 volume_db = 10.0
+
+[node name="tutorial" type="Popup" parent="."]
+margin_left = 19.3281
+margin_top = 13.9962
+margin_right = 469.328
+margin_bottom = 463.996
+rect_min_size = Vector2( 450, 450 )
+focus_mode = 1
+popup_exclusive = true
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="playfield" type="Sprite" parent="tutorial"]
+texture = ExtResource( 9 )
+centered = false
+
+[node name="close" type="Button" parent="tutorial"]
+pause_mode = 2
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -65.0
+margin_top = -58.0
+margin_right = 65.0
+margin_bottom = -21.0
+size_flags_horizontal = 3
+custom_styles/hover = ExtResource( 5 )
+custom_styles/pressed = ExtResource( 6 )
+custom_styles/normal = ExtResource( 7 )
+custom_fonts/font = ExtResource( 8 )
+shortcut_in_tooltip = false
+text = "Close Tutorial"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="tutorial" type="Label" parent="tutorial"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -195.0
+margin_top = -153.0
+margin_right = 186.0
+margin_bottom = 154.0
+custom_fonts/font = SubResource( 13 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+text = "How to play:
+
+1. Wait for the buggles to stop moving around.
+2. Place your primary slime core.
+3. Wait for other players to place their slime core.
+4. Observe the preliminary scoring.
+5. Place your secondary slime core.
+	Steal buggles from other players!
+	Defend your buggles!
+6. When all slime cores are placed, scoring for the round takes place.
+7. Best player after 10 rounds wins the game."
+valign = 1
+autowrap = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="vbox/add" to="." method="_on_add_pressed"]
+[connection signal="pressed" from="vbox/tutorial" to="." method="_on_tutorial_pressed"]
 [connection signal="pressed" from="vbox/play" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="tutorial/close" to="." method="_on_close_pressed"]

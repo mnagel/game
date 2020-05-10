@@ -32,8 +32,6 @@ var connection_line_width = 7
 
 var margin = 5
 
-var tutorial = true
-
 # Viewport limits
 var min_limits = Vector2(10, 10)
 var max_limits = Vector2(440, 440)

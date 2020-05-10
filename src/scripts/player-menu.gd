@@ -7,6 +7,7 @@ var player_settings = preload("res://scenes/player_settings.tscn")
 # Nodes
 onready var players_container = $scroll/container
 onready var lp_msg = $messages # when players are less than 2
+onready var tutorial_popup = $tutorial
 
 onready var sfx = $sfx
 
@@ -53,3 +54,10 @@ func _on_add_pressed():
 		global.num_players += 1
 		players_container.add_child(instancedPlayerSettings)
 		if global.sound: sfx.play()
+		
+func _on_tutorial_pressed():
+	tutorial_popup.popup()
+
+
+func _on_close_pressed():
+	tutorial_popup.visible = false
