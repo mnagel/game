@@ -47,3 +47,10 @@ func getPlayerByIdentifier(player_identifier):
 
 func setPlayer(dict):
 	global.players[dict["identifier"]] = dict
+
+func getRandomPosition():
+	var rx = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
+	var ry = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
+	var pos = Vector2(rx, ry)
+	return pos
+

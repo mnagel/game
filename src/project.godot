@@ -23,6 +23,7 @@ config/icon="res://icon.png"
 [autoload]
 
 global="*res://scripts/global.gd"
+Bot="*res://scripts/bot.gd"
 
 [debug]
 

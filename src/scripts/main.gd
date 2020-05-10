@@ -105,53 +105,6 @@ func tryPutCore(position):
 func warnPlayer(): # Warn the player visually
 	warn_player.play("veryClose")
 
-func getBotLocationChoice(player_id):
-	if player_id != 0:
-		return getMnagelBotLocationChoice(player_id, player_id * 20 + 20)
-	else:
-		return getMidstPosition() + getRandomPosition() * rng.randf_range(0.2, 0.5)
-		
-func getMnagelBotLocationChoice(player_id, perc):	
-	var best_score_1 = 0 # in connection reach
-	var best_score_2 = 0 # in safe reach
-	var best_score_3 = 0 # other
-	var best_node = buggles_nodes[0]
-	
-	for pivot in buggles_nodes:
-		# only consider outside of safe zones
-		if not canPlaceCore(pivot.position):
-			continue
-			
-		# we need some non-determinism to make multiple instances of the bot feasible
-		if rng.randi_range(0, 100) > perc:
-			continue # disregard node for choice 
-		
-		var pivot_score_1 = 0
-		var pivot_score_2 = 0
-		var pivot_score_3 = 0
-		for other in buggles_nodes:
-			# we need some non-determinism to make multiple instances of the bot feasible
-			if rng.randi_range(0, 100) > perc:
-				continue # disregard node for scoring 
-			
-			var distance = (pivot.position - other.position).length()
-			if distance <= global.connection_maxlength:
-				pivot_score_1 += 1
-			if distance <= global.safezone_radius:
-				pivot_score_2 += 1
-			else:
-				pivot_score_3 += 1 / pow(distance/global.connection_maxlength, 1.9)
-		if pivot_score_1 + pivot_score_2 + pivot_score_3 >= best_score_1 + best_score_2 + best_score_3:
-			best_score_1 = pivot_score_1
-			best_score_2 = pivot_score_2
-			best_score_3 = pivot_score_3
-			best_node = pivot
-	
-	print("MNA bot (%d) acting for player %s, winning score %.1f+%.1f+%.1f"  
-	% [perc, global.getPlayerByIndex(player_id)["name"], best_score_1, best_score_2, best_score_3] 
-	)
-	return best_node.position
-
 func rankPlayers():
 	var player_identifiers = global.players.keys()
 	player_identifiers.sort_custom(self, "comparePlayers")
@@ -167,7 +120,7 @@ func generateBuggles():
 	buggles_nodes = []
 	for _i in range(0, buggles_count):
 		var instancedBuggle = buggle.instance()
-		instancedBuggle.position = getRandomPosition()
+		instancedBuggle.position = global.getRandomPosition()
 		instancedBuggle.get_node("donut-std-1").rotation_degrees = rng.randi_range(0, 360)
 		buggles_nodes.append(instancedBuggle)
 		add_child(instancedBuggle)
@@ -186,23 +139,11 @@ func removeSlimes():
 		remove_child(node)
 	slimecores = []
 
-func getRandomPosition():
-	var rx = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
-	var ry = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
-	var pos = Vector2(rx, ry)
-	return pos
-
 func resetScore():
 	for player in global.players.values():
 		player["total_score"] = 0
 		player["score"] = 0
 
-func getMidstPosition():
-	var pos = Vector2(0, 0)
-	for node in buggles_nodes:
-		pos += node.position
-	pos = pos / buggles_nodes.size()
-	return pos
 
 func showMessage(msg, clear = false):
 	if clear:
@@ -389,7 +330,7 @@ func on_start_next_round_timer_timeout():
 
 func on_bot_thinking_timeout():
 	while true:	
-		if tryPutCore(getBotLocationChoice(current_player_index)):
+		if tryPutCore(Bot.getBotLocationChoice(self, current_player_index)):
 			break
 		else:
 			# position was illegal. try again
