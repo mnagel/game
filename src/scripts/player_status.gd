@@ -1,21 +1,25 @@
 extends Container
 
-var color = "null"
+var player_identifier = ""
+
+func getPlayer():
+	return global.getPlayerByIdentifier(player_identifier)
 
 
 func _process(delta):
-	var score = global.players[color]["score"]
+	var score = getPlayer()["score"]
 	$full_round_progress.region_rect = Rect2(0, 0, float(160 * score / 60.0), 8)
-	$highlighted.visible = (global.highlighted == color)
+	$highlighted.visible = (global.highlighted == player_identifier)
 	update()
 
 
 func update():
-	$player_name.text = global.players[color]["name"]
-	$round_score.text = str("R", global.current_round, ": ", global.players[color]["score"])
-	$total_score.text = str(global.players[color]["total_score"])
-	if global.players[color]["bot"]:
-		$avatar.texture = load("res://assets/avatars/bot-" + color + ".png")
+	$player_name.text = getPlayer()["name"]
+	$round_score.text = str("R", global.current_round, ": ", getPlayer()["score"])
+	$total_score.text = str(getPlayer()["total_score"])
+
+	if getPlayer()["bot"]:
+		$avatar.texture = load("res://assets/avatars/bot-" + getPlayer()["file"] + ".png")
 	else:
-		$avatar.texture = load("res://assets/avatars/human-" + color + ".png")
-	$bot.visible = global.players[color]["bot"]
+		$avatar.texture = load("res://assets/avatars/human-" + getPlayer()["file"] + ".png")
+	$bot.visible = getPlayer()["bot"]

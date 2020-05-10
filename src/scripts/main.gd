@@ -12,10 +12,9 @@ var backup_buggles = []
 export (int) var buggles_count = 60
 
 # Players
-var current_player = global.current_player
-var num_players = global.num_players
-var players = global.players
+var current_player_index = 0
 var turn_msg_displayed = false
+var order = []
 
 # Rounds 
 var num_rounds = 10
@@ -66,6 +65,7 @@ var rng = global.rng
 # Gameplay
 var game_over = false
 
+
 func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
 	if not primary_core_phase:
@@ -86,6 +86,7 @@ func tryPutCore(position):
 		return false
 
 	var instancedSlime = slimecore.instance()
+	instancedSlime.player_identifier = global.getPlayerByIndex(current_player_index)["identifier"]
 	instancedSlime.set_safe_zone(global.safezone_radius)
 	instancedSlime.primary = primary_core_phase
 	instancedSlime.position = position
@@ -94,11 +95,10 @@ func tryPutCore(position):
 	if global.sound:
 		sfx.play()
 
-	instancedSlime.color = players.keys()[current_player - 1]
 	slimecores.append(instancedSlime)
 	add_child(instancedSlime)
 	player_timer.stop()
-	current_player += 1
+	current_player_index += 1
 	turn_msg_displayed = false
 	return true
 
@@ -148,30 +148,20 @@ func getMnagelBotLocationChoice(player_id, perc):
 			best_node = pivot
 	
 	print("MNA bot (%d) acting for player %s, winning score %.1f+%.1f+%.1f"  
-	% [perc, players.keys()[player_id - 1], best_score_1, best_score_2, best_score_3] 
+	% [perc, global.getPlayerByIndex(player_id)["name"], best_score_1, best_score_2, best_score_3] 
 	)
-	return best_node.position	
+	return best_node.position
 
-func classifiePlayers():
-	var posts = {}
-	for i in range(0, num_players):
-		var cur = players[players.keys()[i]]
-		posts[str(cur["total_score"])] = players.keys()[i]
-	var sorted_array = []
-	for key in posts.keys():
-		sorted_array.append(int(key))
-	sorted_array.sort()
-	sorted_array.invert()
-	global.highest_score = sorted_array[0]
-	var posts_dict = []
-	for post in sorted_array:
-		posts_dict.append(posts[str(post)])
-	return posts_dict
+func rankPlayers():
+	var player_identifiers = global.players.keys()
+	player_identifiers.sort_custom(self, "comparePlayers")
+	return player_identifiers
 
-func isPlayerBot(id):
-	if players[players.keys()[id]]["bot"] == true:
-		return true
-	return false
+func comparePlayers(player_identifier_a, player_identifier_b):
+	return global.getPlayerByIdentifier(player_identifier_a)["total_score"] > global.getPlayerByIdentifier(player_identifier_b)["total_score"]
+
+func isCurrentPlayerBot():
+	return global.getPlayerByIndex(current_player_index)["bot"]
 
 func generateBuggles():
 	buggles_nodes = []
@@ -187,8 +177,8 @@ func resetBuggles():
 	for node in buggles_nodes:
 		node.reset()
 		backup_buggles.append(node)
-	for key in players.keys():
-		players[key]["score"] = 0
+	for player in global.players.values():
+		player["score"] = 0
 	buggles_nodes = []
 
 func removeSlimes():
@@ -203,9 +193,9 @@ func getRandomPosition():
 	return pos
 
 func resetScore():
-	for key in global.players.keys():
-		global.players[key]["total_score"] = 0
-		global.players[key]["score"] = 0
+	for player in global.players.values():
+		player["total_score"] = 0
+		player["score"] = 0
 
 func getMidstPosition():
 	var pos = Vector2(0, 0)
@@ -233,9 +223,9 @@ func _process(_delta):
 				start_next_round_timer.start()
 			else:  # Game Over`
 				# Save score
-				for key in players:
-					players[key]["total_score"] += players[key]["score"]
-					players[key]["score"] = 0  # Reset round score
+				for player in global.players.values():
+					player["total_score"] += player["score"]
+					player["score"] = 0  # Reset round score
 				game_over = true
 
 	# Hide slimes while inputing to prevent cheating
@@ -255,11 +245,11 @@ func _process(_delta):
 		# Update countdown timer's label
 		else:
 			player_timer_label.text = str(int(player_timer.time_left))
-		if current_player <= num_players:  # If all the players haven't played yet
+		if current_player_index < len(global.players):  # If all the players haven't played yet
 			# Highlight the current player
-			global.highlighted = players.keys()[current_player - 1]
+			global.highlighted = global.getPlayerByIndex(current_player_index)["identifier"]
 			# If a human is playing
-			if not isPlayerBot(current_player - 1):
+			if not isCurrentPlayerBot():
 				if primary_core_phase:
 					if not turn_msg_displayed:
 						showMessage("Click somewhere to input primary slime core")
@@ -289,18 +279,18 @@ func _process(_delta):
 		else:
 			showMessage("Buggles are happy.", true)
 		player_timer.stop()
-		global.highlighted = "none"  # It's no one's turn, when buggles are moving
+		global.highlighted = ""  # It's no one's turn, when buggles are moving
 		# To prevent countdown from showing 0 when nobody is playing
 		player_timer_label.text = "25"
 		turn_msg_displayed = false
 
 	# If all players have played their roles
-	if current_player > num_players:
+	if current_player_index >= len(global.players):
 		if len(buggles_nodes) and not primary_core_phase:  # if this is the secondary slime input
 			showMessage("resetting now", true)
 			resetBuggles()
 		if primary_core_phase and slimecores.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
-			current_player = 1  # First player's turn
+			current_player_index = 0  # First player's turn
 			primary_core_phase = false
 		if slimecores.size() != 0: 
 			pause_buggles = false  # make buggles move
@@ -313,15 +303,15 @@ func _process(_delta):
 	if game_over:
 		if global.sound:
 			game_over_sfx.play()
-		classifiePlayers()
 		
-		winner_label.text = global.players[global.order[0]]["name"] + " is the most shiny!"
+		order = rankPlayers()
+		winner_label.text = global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!"
+		showMessage(global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!")
 		game_over_popup.popup()
-		showMessage(global.players[global.order[0]]["name"] + " is the most shiny!")
-		global.highlighted = global.order[0]
-		for player in global.order:
+		global.highlighted = order[0]
+		for player_identifier in order:
 			var ps = player_status.instance()
-			ps.color = player
+			ps.player_identifier = player_identifier
 			ps.update()
 			players_order.add_child(ps)
 		set_process(false)
@@ -329,7 +319,7 @@ func _process(_delta):
 	# Update the round label
 	round_label.text = str(global.current_round) + "/" + str(num_rounds)
 	# Classifie the players according to their total score
-	global.order = classifiePlayers()
+	order = rankPlayers()
 
 func _input(event):
 	if event is InputEventMouseButton and not get_tree().paused and not timeout_popup.visible:
@@ -343,7 +333,7 @@ func _input(event):
 				and mouse_pos.y < max_limits.y
 			):
 				# If the player hasn't played yet, and is human
-				if current_player <= num_players and not isPlayerBot(current_player - 1):
+				if current_player_index < len(global.players) and not isCurrentPlayerBot():
 					if not tryPutCore(mouse_pos):
 						warnPlayer()
 						showMessage("You can't input very close to the primary slime\n", true)
@@ -363,9 +353,9 @@ func _ready():
 		sound_btn.text = "SOUND:ON"
 	else:
 		sound_btn.text = "SOUND:OFF"
-	for key in players.keys():
+	for player_identifier in global.players.keys():
 		var instancedPlayerStatus = player_status.instance()
-		instancedPlayerStatus.color = key
+		instancedPlayerStatus.player_identifier = player_identifier
 		instancedPlayerStatus.update()
 		players_board.add_child(instancedPlayerStatus)
 
@@ -377,9 +367,9 @@ func on_start_timer_timeout():
 func on_start_next_round_timer_timeout():
 	global.current_round += 1
 	# Save score to variable
-	for key in players:
-		players[key]["total_score"] += players[key]["score"]
-		players[key]["score"] = 0
+	for player in global.players.values():
+		player["total_score"] += player["score"]
+		player["score"] = 0
 	# Clean
 	for node in backup_buggles:
 		remove_child(node)
@@ -389,7 +379,7 @@ func on_start_next_round_timer_timeout():
 	generateBuggles()
 	# Start the round
 	primary_core_phase = true
-	current_player = 1
+	current_player_index = 0
 	start_timer.start()
 	round_anim_label.text = "ROUND " + str(global.current_round)
 	animation_player.play("round")
@@ -399,7 +389,7 @@ func on_start_next_round_timer_timeout():
 
 func on_bot_thinking_timeout():
 	while true:	
-		if tryPutCore(getBotLocationChoice(current_player)):
+		if tryPutCore(getBotLocationChoice(current_player_index)):
 			break
 		else:
 			# position was illegal. try again
@@ -407,7 +397,7 @@ func on_bot_thinking_timeout():
 	player_timer.stop()
 
 func on_player_timer_timeout():
-	current_player += 1
+	current_player_index += 1
 	if pause_buggles:
 		player_timer.start()
 	elif slimecores.size == 0:
@@ -448,7 +438,7 @@ func _on_next_round_btn_pressed():
 	pause_buggles = false
 	resetBuggles()
 	start_timer.start()
-	current_player = 1
+	current_player_index = 0
 	if not primary_core_phase:
 		on_start_next_round_timer_timeout() # modern problems, require modern solutions xD
 	primary_core_phase = false

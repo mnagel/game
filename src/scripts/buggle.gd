@@ -1,7 +1,7 @@
 extends Area2D
 
 var type = "buggle" # there are three types: slime, buggle, slimed-buggle
-var color = "white"  # default color
+var player_identifier = ""
 var moving = true
 var speed = global.buggle_speed
 var parent = null  # used to know the slime core
@@ -82,8 +82,10 @@ func on_area_entered(area):
 		distance = getSlimeDistance()
 		# Stop the buggle from moving
 		moving = false
-		color = area.color
 		connections += 1
+		
+		player_identifier = parent.player_identifier
+		var color = ColorN(global.getPlayerByIdentifier(player_identifier)["color"])
 
 		# Create a new connection
 		var new_line = Line2D.new()
@@ -92,7 +94,7 @@ func on_area_entered(area):
 		# this buggles's position
 		new_line.add_point(Vector2(0, 0))  
 		# get the color from the connected object
-		new_line.default_color = ColorN(area.color)
+		new_line.default_color = color
 		# Antialiasing
 		new_line.antialiased = global.antialiasing
 		if distance <= 2:
@@ -105,12 +107,12 @@ func on_area_entered(area):
 
 		# Buggle outline
 		donut.visible = true
-		donut.modulate = ColorN(area.color)
+		donut.modulate = color
 		
 		# Explosion
 		explosion.emitting = true
-		explosion.process_material.color_ramp.gradient.set_color(0, ColorN(area.color))
-		explosion.process_material.color_ramp.gradient.set_color(1, ColorN(area.color))
+		explosion.process_material.color_ramp.gradient.set_color(0, color)
+		explosion.process_material.color_ramp.gradient.set_color(1, color)
 		
 		# Sound effects
 		if global.sound:
@@ -118,9 +120,8 @@ func on_area_entered(area):
 			sfx.play()
 	
 		# Scoring system
-		var players = global.players
 		if connections == 1:
-			players[color].score += 1
+			global.getPlayerByIdentifier(player_identifier)["score"] += 1
 			get_parent().connected_buggles += 1
 		
 		# set buggle to slimed
@@ -141,7 +142,7 @@ func getSlimeDistance():
 	return d
 
 func reset():
-	color = "white"
+	player_identifier = ""
 	type = "buggle"
 	donut.visible = false
 	remove_child(connection)

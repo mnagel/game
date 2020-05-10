@@ -2,11 +2,11 @@ extends Area2D
 
 var type = "slime"
 var primary = true
-export (String, "red", "blue", "green", "yellow") var color = "red"
+var player_identifier = ""
 
 
 func _ready():
-	$core.modulate = Color(ColorN(color))
+	$core.modulate = Color(ColorN(global.getPlayerByIdentifier(player_identifier)["color"]))
 
 func set_safe_zone(safezone_radius):
 	var spriteWidth = $safeZone.texture.get_width()

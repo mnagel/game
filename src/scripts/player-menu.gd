@@ -13,12 +13,17 @@ onready var sfx = $sfx
 
 # Builtin
 func _ready():
-	global.num_players = len(global.players.keys())
-	for key in global.players.keys(): # get the available players
+	if global.players.size() == 0:
+		_on_add_pressed()
+		_on_add_pressed()
+	
+	for player in global.players.values(): # get the available players
 		var instancedPlayerSettings = player_settings.instance()
-		instancedPlayerSettings.color = key
-		instancedPlayerSettings.player_name = global.players[key]["name"]
-		instancedPlayerSettings.bot = global.players[key]["bot"]
+		instancedPlayerSettings.player_identifier = player["identifier"]
+		instancedPlayerSettings.player_name = player["name"]
+		instancedPlayerSettings.color = player["color"]
+		instancedPlayerSettings.bot = player["bot"]
+		instancedPlayerSettings.file = player["file"]
 		players_container.add_child(instancedPlayerSettings)
 
 func _process(_delta):
@@ -37,21 +42,19 @@ func _on_play_pressed():
 	else:
 		for ps in _players:
 			var dict = ps.generateDict()
-			global.players[dict.keys()[0]] = dict[dict.keys()[0]]
+			global.setPlayer(dict)
 		get_tree().change_scene("res://scenes/main.tscn")
-	
 
 func on_bot_toggled(button_pressed, extra_arg_0):
-	global.players[global.players.keys()[extra_arg_0-1]]["bot"] = button_pressed
+	global.getPlayerByIdentifier(extra_arg_0)["bot"] = button_pressed
 	if global.sound: sfx.play()
 
 func _on_player_name_text_entered(new_text, extra_arg_0):
-	global.players[global.players.keys()[extra_arg_0-1]]["name"] = new_text
+	global.getPlayerByIdentifier(extra_arg_0)["name"] = new_text
 
 func _on_add_pressed():
-	if len(global.colors):
+	if len(global.available_colors):
 		var instancedPlayerSettings = player_settings.instance()
-		global.num_players += 1
 		players_container.add_child(instancedPlayerSettings)
 		if global.sound: sfx.play()
 		

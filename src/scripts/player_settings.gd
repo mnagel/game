@@ -26,36 +26,59 @@ func getRandName():
 	]
 	return names[randi() % names.size()]
 
+var player_identifier = ""
 var player_name = getRandName()
-var color = "none"
+var color = ""
 var bot = false
+var file = ""
+
+var file_lut = {
+	"fuchsia": "red",
+	"cyan": "blue",
+	"lime": "green",
+	"orange": "yellow",
+}
 
 
 func _ready():
-	if global.colors.size() and color == "none":
-		color = global.colors[rand_range(0, global.colors.size() - 1)]
-	elif color == "none":
-		return
-	global.colors.erase(color)
+	if color == "":
+		if len(global.available_colors):
+			color = global.available_colors[rand_range(0, global.available_colors.size() - 1)]
+		else:
+			# Should not happen
+			return
+	
+	player_identifier = color
+	file = file_lut[color]
+	
+	global.available_colors.erase(color)
 	$bot.pressed = bot
-	if bot:
-		$avatar.texture = load("res://assets/avatars/bot-" + color + ".png")
-	else:
-		$avatar.texture = load("res://assets/avatars/human-" + color + ".png")
+	set_avatar()
 	$player_name.text = player_name
 
 
+func set_avatar():
+	if bot:
+		$avatar.texture = load("res://assets/avatars/bot-" + file + ".png")
+	else:
+		$avatar.texture = load("res://assets/avatars/human-" + file + ".png")
+
+
 func generateDict():
-	var dict = {color: {"name": player_name, "score": 0, "total_score": 0, "bot": bot}}
-	return dict
+	return {
+		"identifier": player_identifier,
+		"name": player_name,
+		"color": color,
+		"bot": bot,
+		"file": file,
+		"score": 0,
+		"total_score": 0
+	}
 
 
 func _on_bot_toggled(button_pressed):
 	bot = button_pressed
-	if bot:
-		$avatar.texture = load("res://assets/avatars/bot-" + color + ".png")
-	else:
-		$avatar.texture = load("res://assets/avatars/human-" + color + ".png")
+	set_avatar()
 
 
 func _on_player_name_text_changed(new_text):
@@ -63,10 +86,14 @@ func _on_player_name_text_changed(new_text):
 
 
 func _on_remove_pressed():
+	# Erase player
 	global.players.erase(color)
-	global.num_players -= 1
-	if color in global.colors:
+	
+	# Return color to global available colors
+	if color in global.available_colors:
 		pass
 	else:
-		global.colors.append(color)
+		global.available_colors.append(color)
+	
+	# Remove self
 	get_parent().remove_child(self)

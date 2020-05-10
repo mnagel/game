@@ -8,7 +8,7 @@
 [ext_resource path="res://assets/player_settings/human_toggle.png" type="Texture" id=6]
 
 [sub_resource type="DynamicFontData" id=1]
-font_path = "res://Fonts/OpenSans-Bold.ttf"
+font_path = "res://assets/fonts/OpenSans-Bold.ttf"
 
 [sub_resource type="DynamicFont" id=2]
 font_data = SubResource( 1 )
@@ -19,7 +19,7 @@ corner_detail = 1
 anti_aliasing_size = 2
 
 [sub_resource type="DynamicFontData" id=4]
-font_path = "res://Fonts/OpenSans-Bold.ttf"
+font_path = "res://assets/fonts/OpenSans-Bold.ttf"
 
 [sub_resource type="DynamicFont" id=5]
 size = 14
