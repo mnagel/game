@@ -2,9 +2,29 @@ extends Control
 
 
 func getRandName():
-	var words = ["ava", "b0t", "gr3", "blu", "r3d", "h4x", "cyb", "nix", "tux", "win"]
-	return words[int(rand_range(1, words.size() - 1)) - 1] + str(int(rand_range(1, 9)))
-
+	var names = [
+		"Data",
+		"Plex",
+		"Opak", 
+		"Fiber",
+		"H3X", 
+		"BU4", 
+		"N34", 
+		"Beta", 
+		"Alpha",
+		"CC20",
+		"Otis",
+		"Tink",
+		"Otk", 
+		"Cori",
+		"Agxt", 
+		"Screw", 
+		"Cybel", 
+		"Spark", 
+		"Plier", 
+		"Oyz"
+	]
+	return names[randi() % names.size()]
 
 var player_name = getRandName()
 var color = "none"
