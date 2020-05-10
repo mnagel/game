@@ -7,7 +7,7 @@ var highlighted = ""
 
 var rng = RandomNumberGenerator.new()
 
-var current_round = 1
+var current_round = 0
 
 # Buggle related stuff
 var buggle_speed = 5

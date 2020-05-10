@@ -281,24 +281,15 @@ func _input(event):
 
 func _ready():
 	set_process(true)
-	generateBuggles()
 	start_timer.connect("timeout", self, "on_start_timer_timeout")
-	start_timer.start()
+	global.current_round = 0
 	game_over = false
-	if global.sound:
-		round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) + ".wav")
-		round_sfx.play()
-	round_anim_label.text = "ROUND " + str(global.current_round)
-	animation_player.play("round")
-	if global.sound:
-		sound_btn.text = "SOUND:ON"
-	else:
-		sound_btn.text = "SOUND:OFF"
 	for player_identifier in global.players.keys():
 		var instancedPlayerStatus = player_status.instance()
 		instancedPlayerStatus.player_identifier = player_identifier
 		instancedPlayerStatus.update()
 		players_board.add_child(instancedPlayerStatus)
+	on_start_next_round_timer_timeout()
 
 # Signals
 func on_start_timer_timeout():
