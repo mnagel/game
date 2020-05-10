@@ -312,13 +312,13 @@ func _process(_delta):
 				timeout_popup.popup()
 
 	if game_over:
-		showMessage("Game Over!", true)
 		if global.sound:
 			game_over_sfx.play()
 		classifiePlayers()
-		winner_label.text = "Winner is " + global.players[global.order[0]]["name"]
+		
+		winner_label.text = global.players[global.order[0]]["name"] + " is the most shiny!"
 		game_over_popup.popup()
-		showMessage("Winner is " + global.players[global.order[0]]["name"])
+		showMessage(global.players[global.order[0]]["name"] + " is the most shiny!")
 		global.highlighted = global.order[0]
 		for player in global.order:
 			var ps = player_status.instance()
