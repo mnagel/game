@@ -17,7 +17,7 @@ var turn_msg_displayed = false
 var order = []
 
 # Rounds 
-var num_rounds = 10
+var num_rounds = 4
 
 # Timers
 onready var start_timer = $start_timer
@@ -316,7 +316,11 @@ func on_start_next_round_timer_timeout():
 	round_anim_label.text = "UNIVERSE " + str(global.current_round)
 	animation_player.play("round")
 	if global.sound:
-		round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) +".wav")
+		var sndfile = global.current_round
+		if global.current_round > 10 or global.current_round == num_rounds:
+			sndfile = 10 # play final round for last round and prevent bad access
+		
+		round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
 		round_sfx.play()
 
 func on_bot_thinking_timeout():
