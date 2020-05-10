@@ -252,11 +252,11 @@ func _process(_delta):
 			if not isCurrentPlayerBot():
 				if primary_core_phase:
 					if not turn_msg_displayed:
-						showMessage("Click somewhere to input primary slime core")
+						showMessage("Place your primary supernova")
 						turn_msg_displayed = true
 				else:
 					if not turn_msg_displayed:
-						showMessage("Click somewhere to input secondary slime core")
+						showMessage("Place your secondary supernova")
 						if global.sound:
 							sfx.play()
 						turn_msg_displayed = true
@@ -273,11 +273,11 @@ func _process(_delta):
 		# display reviewing message, only when there are slimes
 		if slimecores.size():
 			if start_next_round_timer.is_stopped():
-				showMessage("Reviewing slime activity ...", true)
+				showMessage("Watching the universe explode", true)
 			else:
-				showMessage("Preparing next round. Reflect upon your actions.", true)
+				showMessage("Preparing fresh universe. Reflect upon your actions.", true)
 		else:
-			showMessage("Buggles are happy.", true)
+			showMessage("Watch the world go by.", true)
 		player_timer.stop()
 		global.highlighted = ""  # It's no one's turn, when buggles are moving
 		# To prevent countdown from showing 0 when nobody is playing
@@ -336,7 +336,7 @@ func _input(event):
 				if current_player_index < len(global.players) and not isCurrentPlayerBot():
 					if not tryPutCore(mouse_pos):
 						warnPlayer()
-						showMessage("You can't input very close to the primary slime\n", true)
+						showMessage("Supernova overload. Explode elsewhere!\n", true)
 
 func _ready():
 	set_process(true)
@@ -345,7 +345,7 @@ func _ready():
 	start_timer.start()
 	game_over = false
 	if global.sound:
-		round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) +".wav")
+		round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) + ".wav")
 		round_sfx.play()
 	round_anim_label.text = "ROUND " + str(global.current_round)
 	animation_player.play("round")
@@ -381,7 +381,7 @@ func on_start_next_round_timer_timeout():
 	primary_core_phase = true
 	current_player_index = 0
 	start_timer.start()
-	round_anim_label.text = "ROUND " + str(global.current_round)
+	round_anim_label.text = "UNIVERSE " + str(global.current_round)
 	animation_player.play("round")
 	if global.sound:
 		round_sfx.stream = load("res://assets/sound/round_" + str(global.current_round) +".wav")
@@ -401,7 +401,7 @@ func on_player_timer_timeout():
 	if pause_buggles:
 		player_timer.start()
 	elif slimecores.size == 0:
-		showMessage("Nobody played, moving on to next round")
+		showMessage("Nothing exploded, moving on to next universe...")
 		global.current_round += 1
 
 func _on_restart_pressed():
