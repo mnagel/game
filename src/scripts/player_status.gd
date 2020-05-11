@@ -19,7 +19,8 @@ func update():
 	$total_score.text = str(getPlayer()["total_score"])
 
 	if getPlayer()["bot"]:
-		$avatar.texture = load("res://assets/avatars/bot-" + getPlayer()["file"] + ".png")
+		$avatar.texture = load("res://assets/avatars/bot.png")
 	else:
-		$avatar.texture = load("res://assets/avatars/human-" + getPlayer()["file"] + ".png")
+		$avatar.texture = load("res://assets/avatars/human.png")
+	$avatar.modulate = ColorN(getPlayer()["color"])
 	$bot.visible = getPlayer()["bot"]
