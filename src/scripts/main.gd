@@ -7,9 +7,6 @@ var primary_core_phase = true
 var connected_buggles = 0
 var buggle = preload("res://scenes/buggle.tscn")
 var pause_buggles = false
-var buggles_nodes = []
-var backup_buggles = []
-export (int) var buggles_count = 60
 
 # Players
 var current_player_index = 0
@@ -39,7 +36,7 @@ onready var players_board = $players_container
 onready var round_anim_label = $round_anim_label
 onready var animation_player = $anim
 onready var manim = $manim
-onready var mouse_pos_indicator = $mouse_pos
+onready var mouse_pos_indicator = $mou/se_pos
 onready var timeout_popup = $timeout
 onready var warn_player = $warn_player
 
@@ -47,7 +44,6 @@ onready var warn_player = $warn_player
 # Slimes
 var slimecore = preload("res://scenes/slimecore.tscn")
 var player_status = preload("res://scenes/player_status.tscn")
-var slimecores = []
 
 # Viewport limits
 var margin = global.margin
@@ -69,7 +65,7 @@ var game_over = false
 func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
 	if not primary_core_phase:
-		for slime in slimecores:
+		for slime in global.slimecores:
 			if slime.primary:
 				var slimes_distance = slime.position - position
 				if slimes_distance.length() <= global.safezone_radius:
@@ -95,7 +91,7 @@ func tryPutCore(position):
 	if global.sound:
 		sfx.play()
 
-	slimecores.append(instancedSlime)
+	global.slimecores.append(instancedSlime)
 	add_child(instancedSlime)
 	player_timer.stop()
 	current_player_index += 1
@@ -116,34 +112,6 @@ func comparePlayers(player_identifier_a, player_identifier_b):
 func isCurrentPlayerBot():
 	return global.getPlayerByIndex(current_player_index)["bot"]
 
-func generateBuggles():
-	buggles_nodes = []
-	for _i in range(0, buggles_count):
-		var instancedBuggle = buggle.instance()
-		instancedBuggle.position = global.getRandomPosition()
-		instancedBuggle.get_node("donut-std-1").rotation_degrees = rng.randi_range(0, 360)
-		buggles_nodes.append(instancedBuggle)
-		add_child(instancedBuggle)
-	return
-
-func resetBuggles():
-	for node in buggles_nodes:
-		node.reset()
-		backup_buggles.append(node)
-	for player in global.players.values():
-		player["score"] = 0
-	buggles_nodes = []
-
-func removeSlimes():
-	for node in slimecores:
-		remove_child(node)
-	slimecores = []
-
-func resetScore():
-	for player in global.players.values():
-		player["total_score"] = 0
-		player["score"] = 0
-
 
 func showMessage(msg, clear = false):
 	if clear:
@@ -153,9 +121,9 @@ func showMessage(msg, clear = false):
 
 # Builtin
 func _process(_delta):
-	if connected_buggles >= buggles_count and global.current_round <= num_rounds:
+	if connected_buggles >= global.buggles_count and global.current_round <= num_rounds:
 		connected_buggles = 0
-		if len(buggles_nodes):
+		if len(global.buggles_nodes):
 			pause_buggles = true
 		else:
 			# New round
@@ -170,7 +138,7 @@ func _process(_delta):
 				game_over = true
 
 	# Hide slimes while inputing to prevent cheating
-	for slime in slimecores:
+	for slime in global.slimecores:
 		if slime.primary:
 			slime.visible = (not pause_buggles) or (not primary_core_phase)
 		else:  # the secondary slimes
@@ -212,7 +180,7 @@ func _process(_delta):
 	# If nobody is playing, aka: buggles are moving
 	else:
 		# display reviewing message, only when there are slimes
-		if slimecores.size():
+		if global.slimecores.size():
 			if start_next_round_timer.is_stopped():
 				showMessage("Watching the universe explode", true)
 			else:
@@ -227,13 +195,13 @@ func _process(_delta):
 
 	# If all players have played their roles
 	if current_player_index >= len(global.players):
-		if len(buggles_nodes) and not primary_core_phase:  # if this is the secondary slime input
+		if len(global.buggles_nodes) and not primary_core_phase:  # if this is the secondary slime input
 			showMessage("resetting now", true)
-			resetBuggles()
-		if primary_core_phase and slimecores.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
+			global.resetBuggles()
+		if primary_core_phase and global.slimecores.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
 			current_player_index = 0  # First player's turn
 			primary_core_phase = false
-		if slimecores.size() != 0: 
+		if global.slimecores.size() != 0: 
 			pause_buggles = false  # make buggles move
 		else:
 			# If timeout and nobody has played
@@ -303,12 +271,10 @@ func on_start_next_round_timer_timeout():
 		player["total_score"] += player["score"]
 		player["score"] = 0
 	# Clean
-	for node in backup_buggles:
-		remove_child(node)
-	backup_buggles = []
-	removeSlimes()
+	global.removeBackupBuggles(self)
+	global.removeSlimes(self)
 	# Build round
-	generateBuggles()
+	global.generateBuggles(self)
 	# Start the round
 	primary_core_phase = true
 	current_player_index = 0
@@ -336,7 +302,7 @@ func on_player_timer_timeout():
 	current_player_index += 1
 	if pause_buggles:
 		player_timer.start()
-	elif slimecores.size == 0:
+	elif global.slimecores.size == 0:
 		showMessage("Nothing exploded, moving on to next universe...")
 		global.current_round += 1
 
@@ -345,7 +311,7 @@ func _on_restart_pressed():
 		get_tree().paused = false
 	if pause_scr.visible:
 		pause_scr.visible = false
-	resetScore()
+	global.resetScore()
 	return get_tree().reload_current_scene()
 
 func _on_exit_pressed():
@@ -372,7 +338,7 @@ func _on_sound_pressed():
 func _on_next_round_btn_pressed():
 	timeout_popup.visible = false
 	pause_buggles = false
-	resetBuggles()
+	global.resetBuggles()
 	start_timer.start()
 	current_player_index = 0
 	if not primary_core_phase:

@@ -54,3 +54,41 @@ func getRandomPosition():
 	var pos = Vector2(rx, ry)
 	return pos
 
+var buggles_nodes = []
+var backup_buggles = []
+export (int) var buggles_count = 60
+var Buggle = preload('res://scenes/buggle.tscn')
+var slimecores = []
+
+func generateBuggles(scene):
+	buggles_nodes = []
+	for _i in range(0, buggles_count):
+		var instancedBuggle = Buggle.instance()
+		instancedBuggle.position = getRandomPosition()
+		instancedBuggle.get_node("donut-std-1").rotation_degrees = rng.randi_range(0, 360)
+		buggles_nodes.append(instancedBuggle)
+		scene.add_child(instancedBuggle)
+	return
+
+func resetBuggles():
+	for node in buggles_nodes:
+		node.reset()
+		backup_buggles.append(node)
+	for player in players.values():
+		player["score"] = 0
+	buggles_nodes = []
+
+func removeSlimes(scene):
+	for node in slimecores:
+		scene.remove_child(node)
+	slimecores = []
+
+func removeBackupBuggles(scene):
+	for node in global.backup_buggles:
+		scene.remove_child(node)
+	backup_buggles = []
+
+func resetScore():
+	for player in global.players.values():
+		player["total_score"] = 0
+		player["score"] = 0
