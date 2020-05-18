@@ -9,7 +9,6 @@ var buggle = preload("res://scenes/buggle.tscn")
 var pause_buggles = false
 
 # Players
-var current_player_index = 0
 var turn_msg_displayed = false
 var order = []
 
@@ -82,7 +81,7 @@ func tryPutCore(position):
 		return false
 
 	var instancedSlime = slimecore.instance()
-	instancedSlime.player_identifier = global.getPlayerByIndex(current_player_index)["identifier"]
+	instancedSlime.player_identifier = global.getPlayerByIndex(global.current_player_index)["identifier"]
 	instancedSlime.set_safe_zone(global.safezone_radius)
 	instancedSlime.primary = primary_core_phase
 	instancedSlime.position = position
@@ -94,24 +93,12 @@ func tryPutCore(position):
 	global.slimecores.append(instancedSlime)
 	add_child(instancedSlime)
 	player_timer.stop()
-	current_player_index += 1
+	global.current_player_index += 1
 	turn_msg_displayed = false
 	return true
 
 func warnPlayer(): # Warn the player visually
 	warn_player.play("veryClose")
-
-func rankPlayers():
-	var player_identifiers = global.players.keys()
-	player_identifiers.sort_custom(self, "comparePlayers")
-	return player_identifiers
-
-func comparePlayers(player_identifier_a, player_identifier_b):
-	return global.getPlayerByIdentifier(player_identifier_a)["total_score"] > global.getPlayerByIdentifier(player_identifier_b)["total_score"]
-
-func isCurrentPlayerBot():
-	return global.getPlayerByIndex(current_player_index)["bot"]
-
 
 func showMessage(msg, clear = false):
 	if clear:
@@ -154,11 +141,11 @@ func _process(_delta):
 		# Update countdown timer's label
 		else:
 			player_timer_label.text = str(int(player_timer.time_left))
-		if current_player_index < len(global.players):  # If all the players haven't played yet
+		if global.current_player_index < len(global.players):  # If all the players haven't played yet
 			# Highlight the current player
-			global.highlighted = global.getPlayerByIndex(current_player_index)["identifier"]
+			global.highlighted = global.getPlayerByIndex(global.current_player_index)["identifier"]
 			# If a human is playing
-			if not isCurrentPlayerBot():
+			if not global.isCurrentPlayerBot():
 				if primary_core_phase:
 					if not turn_msg_displayed:
 						showMessage("Place your primary supernova")
@@ -194,12 +181,12 @@ func _process(_delta):
 		turn_msg_displayed = false
 
 	# If all players have played their roles
-	if current_player_index >= len(global.players):
+	if global.current_player_index >= len(global.players):
 		if len(global.buggles_nodes) and not primary_core_phase:  # if this is the secondary slime input
 			showMessage("resetting now", true)
 			global.resetBuggles()
 		if primary_core_phase and global.slimecores.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
-			current_player_index = 0  # First player's turn
+			global.current_player_index = 0  # First player's turn
 			primary_core_phase = false
 		if global.slimecores.size() != 0: 
 			pause_buggles = false  # make buggles move
@@ -213,7 +200,7 @@ func _process(_delta):
 		if global.sound:
 			game_over_sfx.play()
 		
-		order = rankPlayers()
+		order = global.rankPlayers()
 		winner_label.text = global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!"
 		showMessage(global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!")
 		game_over_popup.popup()
@@ -228,7 +215,7 @@ func _process(_delta):
 	# Update the round label
 	round_label.text = str(global.current_round) + "/" + str(num_rounds)
 	# Classifie the players according to their total score
-	order = rankPlayers()
+	order = global.rankPlayers()
 
 func _input(event):
 	if event is InputEventMouseButton and not get_tree().paused and not timeout_popup.visible:
@@ -242,7 +229,7 @@ func _input(event):
 				and mouse_pos.y < max_limits.y
 			):
 				# If the player hasn't played yet, and is human
-				if current_player_index < len(global.players) and not isCurrentPlayerBot():
+				if global.current_player_index < len(global.players) and not global.isCurrentPlayerBot():
 					if not tryPutCore(mouse_pos):
 						warnPlayer()
 						showMessage("Supernova overload. Explode elsewhere!\n", true)
@@ -277,7 +264,7 @@ func on_start_next_round_timer_timeout():
 	global.generateBuggles(self)
 	# Start the round
 	primary_core_phase = true
-	current_player_index = 0
+	global.current_player_index = 0
 	start_timer.start()
 	round_anim_label.text = "UNIVERSE " + str(global.current_round)
 	animation_player.play("round")
@@ -291,7 +278,7 @@ func on_start_next_round_timer_timeout():
 
 func on_bot_thinking_timeout():
 	while true:	
-		if tryPutCore(Bot.getBotLocationChoice(self, current_player_index)):
+		if tryPutCore(Bot.getBotLocationChoice(self, global.current_player_index)):
 			break
 		else:
 			# position was illegal. try again
@@ -299,7 +286,7 @@ func on_bot_thinking_timeout():
 	player_timer.stop()
 
 func on_player_timer_timeout():
-	current_player_index += 1
+	global.current_player_index += 1
 	if pause_buggles:
 		player_timer.start()
 	elif global.slimecores.size == 0:
@@ -340,7 +327,7 @@ func _on_next_round_btn_pressed():
 	pause_buggles = false
 	global.resetBuggles()
 	start_timer.start()
-	current_player_index = 0
+	global.current_player_index = 0
 	if not primary_core_phase:
 		on_start_next_round_timer_timeout() # modern problems, require modern solutions xD
 	primary_core_phase = false

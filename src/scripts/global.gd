@@ -28,7 +28,6 @@ var sound = true
 const connection_maxlength = 50 # maximum distance between slimed buggles
 const safezone_radius = 90  # minimum distance between the primary and secondary slimes
 
-
 func getPlayerByIndex(player_index):
 	if player_index >= 0 and player_index < players.size():
 		return global.players[global.players.keys()[player_index]]
@@ -47,6 +46,19 @@ func getPlayerByIdentifier(player_identifier):
 
 func setPlayer(dict):
 	global.players[dict["identifier"]] = dict
+
+func rankPlayers():
+	var player_identifiers = players.keys()
+	player_identifiers.sort_custom(self, "comparePlayers")
+	return player_identifiers
+
+func comparePlayers(player_identifier_a, player_identifier_b):
+	return getPlayerByIdentifier(player_identifier_a)["total_score"] > getPlayerByIdentifier(player_identifier_b)["total_score"]
+
+var current_player_index = 0
+
+func isCurrentPlayerBot():
+	return getPlayerByIndex(current_player_index)["bot"]
 
 func getRandomPosition():
 	var rx = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
