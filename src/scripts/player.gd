@@ -31,6 +31,15 @@ var player_identifier = ""
 var player_name = getRandName() # FIXME broken for initial two players
 var color = ""
 var bot = false
+var file = ""
+
+var file_lut = {
+	"fuchsia": "red",
+	"cyan": "blue",
+	"lime": "green",
+	"orange": "yellow",
+}
+
 
 func _ready():
 	if color == "":
@@ -41,6 +50,7 @@ func _ready():
 			return
 	
 	player_identifier = color
+	file = file_lut[color]
 	
 	global.available_colors.erase(color)
 	$bot.pressed = bot
@@ -50,10 +60,9 @@ func _ready():
 
 func set_avatar():
 	if bot:
-		$avatar.texture = load("res://assets/avatars/bot.png")
+		$avatar.texture = load("res://assets/avatars/bot-" + file + ".png")
 	else:
-		$avatar.texture = load("res://assets/avatars/human.png")
-	$avatar.modulate = ColorN(color)
+		$avatar.texture = load("res://assets/avatars/human-" + file + ".png")
 
 
 func generateDict():
@@ -62,6 +71,7 @@ func generateDict():
 		"name": player_name,
 		"color": color,
 		"bot": bot,
+		"file": file,
 		"score": 0,
 		"total_score": 0
 	}

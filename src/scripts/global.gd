@@ -2,25 +2,7 @@ extends Node
 
 # Player's stuff
 var players = {}
-var available_colors = [
-	"red",
-	"green",
-	"blue",
-	"yellow",
-	"deeppink",
-	"cyan",
-	"greenyellow",
-	"deepskyblue", 
-	"indigo", 
-	"aqua", 
-	"orange",
-	"lime",
-	"magenta",
-	"orange",
-	"orangered",
-	"tomato",
-	"yellowgreen"
-	]
+var available_colors = ["fuchsia", "cyan", "lime", "orange"]
 var highlighted = ""
 
 var rng = RandomNumberGenerator.new()

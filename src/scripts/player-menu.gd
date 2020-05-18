@@ -23,6 +23,7 @@ func _ready():
 		instancedPlayerSettings.player_name = player["name"]
 		instancedPlayerSettings.color = player["color"]
 		instancedPlayerSettings.bot = player["bot"]
+		instancedPlayerSettings.file = player["file"]
 		players_container.add_child(instancedPlayerSettings)
 
 func _process(_delta):
