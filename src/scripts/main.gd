@@ -7,6 +7,7 @@ var primary_core_phase = true
 var connected_buggles = 0
 var buggle = preload("res://scenes/buggle.tscn")
 var pause_buggles = false
+var state_exploding = false
 
 # Players
 var turn_msg_displayed = false
@@ -35,7 +36,7 @@ onready var players_board = $players_container
 onready var round_anim_label = $round_anim_label
 onready var animation_player = $anim
 onready var manim = $manim
-onready var mouse_pos_indicator = $mou/se_pos
+onready var mouse_pos_indicator = $mouse_pos
 onready var timeout_popup = $timeout
 onready var warn_player = $warn_player
 
@@ -166,6 +167,7 @@ func _process(_delta):
 
 	# If nobody is playing, aka: buggles are moving
 	else:
+		state_exploding = true
 		# display reviewing message, only when there are slimes
 		if global.slimecores.size():
 			if start_next_round_timer.is_stopped():
@@ -252,6 +254,7 @@ func on_start_timer_timeout():
 	pause_buggles = not pause_buggles
 
 func on_start_next_round_timer_timeout():
+	state_exploding = false
 	global.current_round += 1
 	# Save score to variable
 	for player in global.players.values():
