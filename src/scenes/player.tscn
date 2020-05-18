@@ -5,7 +5,7 @@
 [ext_resource path="res://assets/player/human_toggle.png" type="Texture" id=3]
 [ext_resource path="res://assets/player/ps_bg.png" type="Texture" id=4]
 [ext_resource path="res://assets/player/bot_toggle.png" type="Texture" id=5]
-[ext_resource path="res://assets/avatars/bot-blue.png" type="Texture" id=6]
+[ext_resource path="res://assets/avatars/bot.png" type="Texture" id=6]
 
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://assets/fonts/OpenSans-Bold.ttf"
@@ -85,6 +85,9 @@ margin_bottom = 83.9438
 custom_fonts/font = SubResource( 5 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 flat = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="avatar" type="Sprite" parent="."]
 position = Vector2( 220.111, 27.048 )
