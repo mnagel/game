@@ -107,7 +107,7 @@ func showMessage(msg, clear = false):
 	return
 
 # Builtin
-func _process(_delta):
+func _physics_process(_delta):
 	if connected_buggles >= global.buggles_count and global.current_round <= num_rounds:
 		connected_buggles = 0
 		if len(global.buggles_nodes):
