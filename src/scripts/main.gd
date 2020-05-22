@@ -8,12 +8,14 @@ enum State {
 	freefly,
 	# must be triggered for each player, each turn
 	allPick,
+	review,
 	explosions,
 	afterExplosions,
 	gameOver,
 }
 
-var hack_explosions_state = State.explosions
+var hack_explosions_state = State.explosions 
+var hack_review_state = State.review
 
 func statestring(s):
 	if s == State.idle: return "idle"
@@ -26,7 +28,7 @@ func statestring(s):
 
 var allPick_playerindex = 0
 var allPick_novaindex = 0
-onready var state = State.freefly
+onready var state = State.idle
 
 func isCurrentPlayerBot():
 	return global.getPlayerByIndex(allPick_playerindex)["bot"]
@@ -97,7 +99,6 @@ func transition(from, to):
 		player_timer_label.text = "25"
 		round_label.text = str(global.current_round) + "/" + str(num_rounds)
 		
-		
 		if allPick_playerindex == len(global.players):
 			print ("state machine: allPick_playerindex: proceed nova")
 			allPick_novaindex += 1
@@ -106,6 +107,8 @@ func transition(from, to):
 			if allPick_novaindex == 2:
 				transition(State.allPick, State.explosions)
 				return # all handled above
+			else:
+				transition(State.allPick, State.review)
 				
 	
 	if to == State.idle:
@@ -150,7 +153,13 @@ func transition(from, to):
 		else:
 			showMessage("Place your supernova")
 
+	if to == State.review:
+		global.reset_buggles()
+		get_tree().paused = false
+		showMessage("Watching the universe explode", true)
+
 	if to == State.explosions:
+		global.reset_buggles()
 		get_tree().paused = false
 		showMessage("Watching the universe explode", true)
 
@@ -225,6 +234,10 @@ func allStarsExploded(stars):
 # simulate the game at 60 fps
 # repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
+	if state == State.review:
+		if allStarsExploded(global.buggles_nodes):
+			transition(State.review, State.allPick)
+	
 	if state == State.explosions:
 		if allStarsExploded(global.buggles_nodes):
 			transition(State.explosions, State.afterExplosions)
@@ -267,7 +280,6 @@ func _ready():
 # Signals
 func on_start_timer_timeout():
 	transition(State.freefly, State.allPick)
-	
 
 func on_start_next_round_timer_timeout():
 	if global.current_round < num_rounds:
@@ -277,8 +289,6 @@ func on_start_next_round_timer_timeout():
 			player["total_score"] += player["score"]
 			player["score"] = 0  # Reset round score
 		transition(State.afterExplosions, State.gameOver)
-	
-	
 
 func on_bot_thinking_timeout():
 	while true:
@@ -294,8 +304,7 @@ func on_player_timer_timeout():
 	transition(State.allPick, State.allPick) # consider this player done
 
 func _on_exit_pressed():
-	if get_tree().paused:
-		get_tree().paused = false
+	global.killState(self)
 	return get_tree().change_scene("res://scenes/player-menu.tscn")
 
 func _on_sound_pressed():
@@ -305,6 +314,6 @@ func _on_sound_pressed():
 	else:
 		sound_btn.text = "SOUND:OFF"
 
-func _on_play_btn_pressed():
-	print("fixme on play btn")
-
+func _on_restart_pressed():
+	global.killState(self)
+	return get_tree().reload_current_scene()

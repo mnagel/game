@@ -85,16 +85,29 @@ var slimecores = []
 export (int) var buggles_count = 60
 var Buggle = preload('res://scenes/buggle.tscn')
 
+func reset_buggles():
+	for buggle in buggles_nodes:
+		buggle.reset(self)
 
 func generateBuggles(scene):
 	buggles_nodes = []
 	for _i in range(0, buggles_count):
+		var rng = global.rng # FIXME kill this. handle pos+speed the same way
+		var rny = rng.randf_range(-1.0, +1.0)
+		var rnx = rng.randf_range(-1.0, +1.0)
+		var speed = Vector2(rnx, rny) * global.buggle_speed
+
 		var instancedBuggle = Buggle.instance()
-		instancedBuggle.position = getRandomPosition()
+		instancedBuggle.init(getRandomPosition(), speed)
 		instancedBuggle.get_node("donut-std-1").rotation_degrees = rng.randi_range(0, 360)
 		buggles_nodes.append(instancedBuggle)
 		scene.add_child(instancedBuggle)
 	return
+	
+func killState(scene):
+	killBuggles(scene)
+	removeSlimes(scene)
+	resetScore()
 
 func killBuggles(scene):
 	for node in buggles_nodes:

@@ -3,12 +3,12 @@ extends Area2D
 var type = "buggle" # there are three types: nova, buggle, slimed-buggle
 var player_identifier = ""
 var color = null
-var speed = global.buggle_speed
+var speed = Vector2(0, 0)
+var orig_position = null
+var orig_speed = null
 var parent = null  # star/nova one hop towards the nova
 var distance = 0 # distance between this buggle and the core, in "hops"
 var connection = null # star/nova one hop towards the nova
-
-var direction = Vector2(0, 0)
 
 # Viewport limits
 var min_limits = global.min_limits
@@ -21,15 +21,23 @@ onready var sfx = $sfx
 onready var explosion = $explosion
 
 
-# collission detection for the sliming
+# collision detection for the sliming
 func on_area_entered(who):
-	if not get_parent().state == get_parent().hack_explosions_state: # TODO: get /main/ and the game state properly
-		return
+	if self.type != "buggle":
+		print("This should never happen :) exploding things that should not explode: %s by %s" % [self.type, who.type])
+		return # do not connect things that should not be connected...
+		pass
+	
+	if not (
+		get_parent().state == get_parent().hack_explosions_state or 
+		get_parent().state == get_parent().hack_review_state
+	): return
+
 	
 	var candidates = []
 	
 	# get all candidate areas
-	for area in get_overlapping_areas():
+	for area in global.buggles_nodes + global.slimecores:
 		if area.type == "nova" or area.type == "slimed-buggle":
 			candidates.append(area)
 	if candidates.empty():
@@ -51,7 +59,9 @@ func on_area_entered(who):
 		# set some own stats
 		type = "slimed-buggle"
 
-		connection = Line2D.new()
+		if self.connection != null:
+			print("chaos")
+		self.connection = Line2D.new()
 		# the position of parent
 		connection.add_point(parent.position - position)  
 		# this buggles's position
@@ -60,7 +70,8 @@ func on_area_entered(who):
 		connection.antialiased = global.antialiasing
 		connection.width = 100 / (distance + 10)
 		connection.z_index = -1
-		add_child(connection)
+		self.add_child(connection)
+		print("added connection %s %s" % [self, connection])
 
 		# Buggle outline
 		donut.visible = true
@@ -79,26 +90,30 @@ func on_area_entered(who):
 		# Scores
 		global.getPlayerByIdentifier(player_identifier)["score"] += 1
 
-
-
-func reset():
+func reset(scene):
+	if self.connection != null:
+		print("rm connection %s %s" % [self, connection])
+		self.remove_child(connection)
+		connection.queue_free()
+		connection = null # star/nova one hop towards the nova
 	type = "buggle" # there are three types: nova, buggle, slimed-buggle
 	player_identifier = ""
 	color = null
-	speed = global.buggle_speed
+	speed = orig_speed
+	position = orig_position
 	parent = null  # star/nova one hop towards the nova
 	distance = 0 # distance between this buggle and the core, in "hops"
-	connection = null # star/nova one hop towards the nova
-	remove_child(connection)
 	
 	donut.visible = false
+
+func init(pos, vel):
+	position = pos
+	speed = vel
 	
+	orig_position = position
+	orig_speed = speed
+
 func _ready():
-	var rng = global.rng # FIXME kill this. handle pos+speed the same way
-	var rny = rng.randf_range(-100.0, 100.0)
-	var rnx = rng.randf_range(-100.0, 100.0)
-	direction = Vector2(rnx, rny)
-	direction = direction.normalized()
 	connect("area_entered", self, "on_area_entered")
 
 	# Allow different gradients per boggle (actually only needed per player but whatever)
@@ -110,7 +125,7 @@ func _physics_process(delta):
 	# check if moving individually, and as all buggles
 	if type == "buggle":
 		if (position.x <= min_limits.x + margin) or (position.x >= max_limits.x - margin):
-			direction.x = -direction.x
+			speed.x = -speed.x
 		if position.y <= min_limits.y + margin or position.y >= max_limits.y - margin:
-			direction.y = -direction.y
-		position += direction * speed
+			speed.y = -speed.y
+		position += speed
