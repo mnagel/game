@@ -78,7 +78,6 @@ func on_area_entered(who):
 		
 		# Scores
 		global.getPlayerByIdentifier(player_identifier)["score"] += 1
-		get_parent().connected_buggles += 1
 
 
 

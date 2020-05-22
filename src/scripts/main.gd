@@ -1,7 +1,6 @@
 extends Node2D
 
 # Buggles movement
-var connected_buggles = 0
 var buggle = preload("res://scenes/buggle.tscn")
 
 enum State {
@@ -25,11 +24,12 @@ func statestring(s):
 	if s == State.gameOver: return "gameOver"
 	return "unknown state"
 
-# number of novas placed this turn
-var allPick_innercount = 0
-# number of turns where all players placed
-var allPick_outercount = 0
+var allPick_playerindex = 0
+var allPick_novaindex = 0
 onready var state = State.freefly
+
+func isCurrentPlayerBot():
+	return global.getPlayerByIndex(allPick_playerindex)["bot"]
 
 # Players
 var order = []
@@ -80,28 +80,30 @@ onready var game_over_sfx = $game_over_sfx
 var rng = global.rng
 
 func transition(from, to):
-	print("state machine: %s -> %s" % [statestring(from), statestring(to)])
+	print("state machine: %s -> %s.     universe:%s nova:%s player:%s" % 
+		[statestring(from), statestring(to), global.current_round, allPick_novaindex, allPick_playerindex]
+	)
 	state = to
 	
 	if from == State.freefly:
 		get_tree().paused = true
 		
 	
-	if from == State.allPick:
-		global.current_player_index += 1
-		
+	if from == State.allPick and to == State.allPick: # FIXME put this event-handling elsewhere
+	# handle the transitioned-from player
+		allPick_playerindex += 1
+
 		global.highlighted = ""
 		player_timer_label.text = "25"
 		round_label.text = str(global.current_round) + "/" + str(num_rounds)
 		
-		allPick_innercount += 1
-		if allPick_innercount == len(global.players):
-			print ("state machine: allPick_innercount: proceed turn")
-			allPick_outercount += 1
-			allPick_innercount = 0
-			global.current_player_index = 0
+		
+		if allPick_playerindex == len(global.players):
+			print ("state machine: allPick_playerindex: proceed nova")
+			allPick_novaindex += 1
+			allPick_playerindex = 0
 			
-			if allPick_outercount == 2:
+			if allPick_novaindex == 2:
 				transition(State.allPick, State.explosions)
 				return # all handled above
 				
@@ -111,13 +113,15 @@ func transition(from, to):
 		
 	if to == State.freefly:
 		get_tree().paused = false
+		allPick_playerindex = 0
+		allPick_novaindex = 0
 		global.current_round += 1
 		# Save score to variable
 		for player in global.players.values():
 			player["total_score"] += player["score"]
 			player["score"] = 0
 		# Clean
-		global.removeBackupBuggles(self)
+		global.killBuggles(self)
 		global.removeSlimes(self)
 		# Build round
 		global.generateBuggles(self)
@@ -135,9 +139,10 @@ func transition(from, to):
 
 	# must be triggered for each player, each turn
 	if to == State.allPick:
+	# handle the transitioned-to player
 		player_timer.start()
-		global.highlighted = global.getPlayerByIndex(global.current_player_index)["identifier"]
-		if global.isCurrentPlayerBot():
+		global.highlighted = global.getPlayerByIndex(allPick_playerindex)["identifier"]
+		if isCurrentPlayerBot():
 			showMessage("[Bot] Thinking ...")
 			var bot_think_delay = rng.randf_range(0.6, 1.8)
 			bot_think_delay = 0 # slow thinking sucks
@@ -151,13 +156,8 @@ func transition(from, to):
 
 	if to == State.afterExplosions:
 		showMessage("Reflect upon your actions.", true)
-		if global.current_round < num_rounds:
-			start_next_round_timer.start()
-		else:
-			for player in global.players.values():
-				player["total_score"] += player["score"]
-				player["score"] = 0  # Reset round score
-		
+		start_next_round_timer.start()
+
 	if to == State.gameOver:
 		if global.sound:
 			game_over_sfx.play()
@@ -177,7 +177,7 @@ func transition(from, to):
 func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
 	for slime in global.slimecores:
-		if slime.primary:
+		if allPick_novaindex > 0 and slime.primary: # FIXME check existing nova generation vs nova generation being placed
 			var slimes_distance = slime.position - position
 			if slimes_distance.length() <= global.safezone_radius:
 				return false
@@ -197,9 +197,9 @@ func tryPutCore(position):
 		sfx.play()
 		
 	var instancedSlime = slimecore.instance()
-	instancedSlime.player_identifier = global.getPlayerByIndex(global.current_player_index)["identifier"]
+	instancedSlime.player_identifier = global.getPlayerByIndex(allPick_playerindex)["identifier"]
 	instancedSlime.set_safe_zone(global.safezone_radius)
-	instancedSlime.primary = allPick_outercount == 0
+	instancedSlime.primary = allPick_novaindex == 0
 	instancedSlime.position = position
 	global.slimecores.append(instancedSlime)
 	add_child(instancedSlime)
@@ -215,11 +215,17 @@ func showMessage(msg, clear = false):
 	messages_board.text = msg + "\n"
 	return
 
+func allStarsExploded(stars):
+	for star in stars:
+		if star.type == "buggle":
+			return false
+	return true
+
 # simulate the game at 60 fps
 # repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
 	if state == State.explosions:
-		if connected_buggles >= global.buggles_count:
+		if allStarsExploded(global.buggles_nodes):
 			transition(State.explosions, State.afterExplosions)
 			
 	if state == State.freefly:
@@ -227,19 +233,22 @@ func _physics_process(_delta):
 
 func _input(event):
 	if state == State.allPick and event.is_pressed() and event.button_index == BUTTON_LEFT:
+			if isCurrentPlayerBot():
+					return
+			
+			# only inside play field	
 			var mouse_pos = get_global_mouse_position()
-			# If mouse input is inside of the playfield
-			if (
+			if not (
 				mouse_pos.x > min_limits.x
 				and mouse_pos.y > min_limits.y
 				and mouse_pos.x < max_limits.x
 				and mouse_pos.y < max_limits.y
 			):
-				# If the player hasn't played yet, and is human
-				if global.current_player_index < len(global.players) and not global.isCurrentPlayerBot():
-					if not tryPutCore(mouse_pos):
-						warnPlayer()
-						showMessage("Supernova overload. Explode elsewhere!\n", true)
+				return
+				
+			if not tryPutCore(mouse_pos):
+				warnPlayer()
+				showMessage("Supernova overload. Explode elsewhere!\n", true)
 
 func _ready():
 	set_process(true)
@@ -260,11 +269,20 @@ func on_start_timer_timeout():
 	
 
 func on_start_next_round_timer_timeout():
-	transition(State.afterExplosions, State.freefly)
+	if global.current_round < num_rounds:
+			transition(State.afterExplosions, State.freefly)
+	else:
+		for player in global.players.values():
+			player["total_score"] += player["score"]
+			player["score"] = 0  # Reset round score
+		transition(State.afterExplosions, State.gameOver)
+	
+	
 
 func on_bot_thinking_timeout():
-	while true:	
-		if tryPutCore(Bot.getBotLocationChoice(self, global.current_player_index)):
+	while true:
+		print("on_bot_thinking_timeout while")
+		if tryPutCore(Bot.getBotLocationChoice(self, allPick_playerindex)):
 			break
 		else:
 			# position was illegal. try again
@@ -272,7 +290,6 @@ func on_bot_thinking_timeout():
 	player_timer.stop()
 
 func on_player_timer_timeout():
-	global.current_player_index += 1
 	transition(State.allPick, State.allPick) # consider this player done
 
 func _on_exit_pressed():

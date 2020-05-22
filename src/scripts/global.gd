@@ -73,11 +73,6 @@ func rankPlayers():
 func comparePlayers(player_identifier_a, player_identifier_b):
 	return getPlayerByIdentifier(player_identifier_a)["total_score"] > getPlayerByIdentifier(player_identifier_b)["total_score"]
 
-var current_player_index = 0
-
-func isCurrentPlayerBot():
-	return getPlayerByIndex(current_player_index)["bot"]
-
 func getRandomPosition():
 	var rx = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
 	var ry = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
@@ -85,10 +80,11 @@ func getRandomPosition():
 	return pos
 
 var buggles_nodes = []
-var backup_buggles = []
+var slimecores = []
+
 export (int) var buggles_count = 60
 var Buggle = preload('res://scenes/buggle.tscn')
-var slimecores = []
+
 
 func generateBuggles(scene):
 	buggles_nodes = []
@@ -100,23 +96,15 @@ func generateBuggles(scene):
 		scene.add_child(instancedBuggle)
 	return
 
-func resetBuggles():
+func killBuggles(scene):
 	for node in buggles_nodes:
-		node.reset()
-		backup_buggles.append(node)
-	for player in players.values():
-		player["score"] = 0
+		scene.remove_child(node)
 	buggles_nodes = []
 
 func removeSlimes(scene):
 	for node in slimecores:
 		scene.remove_child(node)
 	slimecores = []
-
-func removeBackupBuggles(scene):
-	for node in global.backup_buggles:
-		scene.remove_child(node)
-	backup_buggles = []
 
 func resetScore():
 	for player in global.players.values():
