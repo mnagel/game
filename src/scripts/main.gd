@@ -205,6 +205,7 @@ func tryPutCore(position):
 	add_child(instancedSlime)
 	
 	transition(State.allPick, State.allPick)
+	return true
 
 func warnPlayer(): # Warn the player visually
 	warn_player.play("veryClose")
