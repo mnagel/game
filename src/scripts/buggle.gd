@@ -23,7 +23,7 @@ onready var explosion = $explosion
 
 # collission detection for the sliming
 func on_area_entered(who):
-	if not get_parent().state_exploding: # TODO: get /main/ and the game state properly
+	if not get_parent().state == get_parent().hack_explosions_state: # TODO: get /main/ and the game state properly
 		return
 	
 	var candidates = []
@@ -109,7 +109,7 @@ func _ready():
 
 func _physics_process(delta):
 	# check if moving individually, and as all buggles
-	if type == "buggle" and not get_parent().pause_buggles:  
+	if type == "buggle":
 		if (position.x <= min_limits.x + margin) or (position.x >= max_limits.x - margin):
 			direction.x = -direction.x
 		if position.y <= min_limits.y + margin or position.y >= max_limits.y - margin:
