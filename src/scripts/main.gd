@@ -4,31 +4,27 @@ extends Node2D
 var buggle = preload("res://scenes/buggle.tscn")
 
 enum State {
-	idle,
+	gameOver,
 	freefly,
 	# must be triggered for each player, each turn
 	allPick,
-	review,
 	explosions,
 	afterExplosions,
-	gameOver,
 }
 
-var hack_explosions_state = State.explosions 
-var hack_review_state = State.review
+var hack_explosions_state = State.explosions
 
 func statestring(s):
-	if s == State.idle: return "idle"
+	if s == State.gameOver: return "gameOver"
 	if s == State.freefly: return "freefly"
 	if s == State.allPick: return "allPick"
 	if s == State.explosions: return "explosions"
 	if s == State.afterExplosions: return "afterExplosions"
-	if s == State.gameOver: return "gameOver"
 	return "unknown state"
 
 var allPick_playerindex = 0
 var allPick_novaindex = 0
-onready var state = State.idle
+onready var state = State.gameOver
 
 func isCurrentPlayerBot():
 	return global.getPlayerByIndex(allPick_playerindex)["bot"]
@@ -81,39 +77,40 @@ onready var game_over_sfx = $game_over_sfx
 # Random number generator
 var rng = global.rng
 
+func handleNovaPlacement():
+	# handle the transitioned-from player
+	allPick_playerindex += 1
+
+	global.highlighted = ""
+	player_timer_label.text = "25"
+	round_label.text = str(global.current_round) + "/" + str(num_rounds)
+	
+	if allPick_playerindex == len(global.players):
+		print ("state machine: allPick_playerindex: proceed nova")
+		allPick_novaindex += 1
+		allPick_playerindex = 0
+		transition(State.allPick, State.explosions)
+	else:
+		allPickLoop()
+
+func allPickLoop():
+	# handle the transitioned-to player
+	player_timer.start()
+	global.highlighted = global.getPlayerByIndex(allPick_playerindex)["identifier"]
+	if isCurrentPlayerBot():
+		showMessage("[Bot] Thinking ...")
+		var bot_think_delay = rng.randf_range(0.6, 1.8)
+		bot_think_delay = 0 # slow thinking sucks
+		bot_thinking.start(bot_think_delay)
+	else:
+		showMessage("Place your supernova")
+
 func transition(from, to):
 	print("state machine: %s -> %s.     universe:%s nova:%s player:%s" % 
 		[statestring(from), statestring(to), global.current_round, allPick_novaindex, allPick_playerindex]
 	)
 	state = to
-	
-	if from == State.freefly:
-		get_tree().paused = true
-		
-	
-	if from == State.allPick and to == State.allPick: # FIXME put this event-handling elsewhere
-	# handle the transitioned-from player
-		allPick_playerindex += 1
 
-		global.highlighted = ""
-		player_timer_label.text = "25"
-		round_label.text = str(global.current_round) + "/" + str(num_rounds)
-		
-		if allPick_playerindex == len(global.players):
-			print ("state machine: allPick_playerindex: proceed nova")
-			allPick_novaindex += 1
-			allPick_playerindex = 0
-			
-			if allPick_novaindex == 2:
-				transition(State.allPick, State.explosions)
-				return # all handled above
-			else:
-				transition(State.allPick, State.review)
-				
-	
-	if to == State.idle:
-		pass
-		
 	if to == State.freefly:
 		get_tree().paused = false
 		allPick_playerindex = 0
@@ -140,23 +137,9 @@ func transition(from, to):
 			round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
 			round_sfx.play()
 
-	# must be triggered for each player, each turn
 	if to == State.allPick:
-	# handle the transitioned-to player
-		player_timer.start()
-		global.highlighted = global.getPlayerByIndex(allPick_playerindex)["identifier"]
-		if isCurrentPlayerBot():
-			showMessage("[Bot] Thinking ...")
-			var bot_think_delay = rng.randf_range(0.6, 1.8)
-			bot_think_delay = 0 # slow thinking sucks
-			bot_thinking.start(bot_think_delay)
-		else:
-			showMessage("Place your supernova")
-
-	if to == State.review:
-		global.reset_buggles()
-		get_tree().paused = false
-		showMessage("Watching the universe explode", true)
+		get_tree().paused = true
+		allPickLoop()
 
 	if to == State.explosions:
 		global.reset_buggles()
@@ -213,7 +196,7 @@ func tryPutCore(position):
 	global.slimecores.append(instancedSlime)
 	add_child(instancedSlime)
 	
-	transition(State.allPick, State.allPick)
+	handleNovaPlacement()
 	return true
 
 func warnPlayer(): # Warn the player visually
@@ -234,13 +217,12 @@ func allStarsExploded(stars):
 # simulate the game at 60 fps
 # repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
-	if state == State.review:
-		if allStarsExploded(global.buggles_nodes):
-			transition(State.review, State.allPick)
-	
 	if state == State.explosions:
 		if allStarsExploded(global.buggles_nodes):
-			transition(State.explosions, State.afterExplosions)
+			if allPick_novaindex == 2:
+				transition(State.explosions, State.afterExplosions)
+			else:
+				transition(State.explosions, State.allPick)
 			
 	if state == State.freefly:
 			player_timer_label.text = str(int(player_timer.time_left))
@@ -275,7 +257,7 @@ func _ready():
 		instancedPlayerStatus.update()
 		players_board.add_child(instancedPlayerStatus)
 	
-	transition(State.idle, State.freefly)
+	transition(State.gameOver, State.freefly)
 
 # Signals
 func on_start_timer_timeout():
@@ -301,7 +283,7 @@ func on_bot_thinking_timeout():
 	player_timer.stop()
 
 func on_player_timer_timeout():
-	transition(State.allPick, State.allPick) # consider this player done
+	handleNovaPlacement() # consider this player done
 
 func _on_exit_pressed():
 	global.killState(self)

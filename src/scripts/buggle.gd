@@ -28,16 +28,12 @@ func on_area_entered(who):
 		return # do not connect things that should not be connected...
 		pass
 	
-	if not (
-		get_parent().state == get_parent().hack_explosions_state or 
-		get_parent().state == get_parent().hack_review_state
-	): return
-
-	
-	var candidates = []
+	if not (get_parent().state == get_parent().hack_explosions_state):
+		return
 	
 	# get all candidate areas
-	for area in global.buggles_nodes + global.slimecores:
+	var candidates = []
+	for area in global.buggles_nodes + global.slimecores: # FIXME why is overlapping areas not enough here...
 		if area.type == "nova" or area.type == "slimed-buggle":
 			candidates.append(area)
 	if candidates.empty():
