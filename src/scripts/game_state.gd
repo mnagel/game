@@ -185,6 +185,8 @@ func killBuggles(scene):
 	for buggle in buggles_root.get_children():
 		buggles_root.remove_child(buggle)
 	scene.remove_child(buggles_root)
+	for star in stars.get_children():
+		stars.remove_child(star)
 
 func removeSlimes(scene):
 	for node in slimecores:
