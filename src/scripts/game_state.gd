@@ -183,10 +183,10 @@ func killState(scene):
 
 func killStargfxs(scene):
 	for stargfx in stargfxs_root.get_children():
-		stargfxs_root.remove_child(stargfx)
+		stargfx.queue_free()
 	scene.remove_child(stargfxs_root)
 	for star in stars.get_children():
-		stars.remove_child(star)
+		star.queue_free()
 
 func removeNovas(scene):
 	for node in novas:

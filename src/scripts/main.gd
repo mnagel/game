@@ -241,8 +241,8 @@ func on_player_timer_timeout():
 	playerDone() # consider this player done
 
 func _on_exit_pressed():
-	state.killState(self)
-	return get_tree().change_scene("res://scenes/player-menu.tscn")
+	GameState.killState(self)
+	return get_tree().change_scene_to(load("res://scenes/player-menu.tscn"))
 
 func _on_sound_pressed():
 	global.sound = not global.sound
@@ -252,5 +252,5 @@ func _on_sound_pressed():
 		sound_btn.text = "SOUND:OFF"
 
 func _on_restart_pressed():
-	state.killState(self)
+	GameState.killState(self)
 	return get_tree().reload_current_scene()
