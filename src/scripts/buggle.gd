@@ -88,7 +88,7 @@ func on_area_entered(who):
 			sfx.play()
 		
 		# Scores
-		global.getPlayerByIdentifier(player_identifier)["score"] += 1
+		GameState.getPlayerByIdentifier(player_identifier)["score"] += 1
 
 func reset(scene):
 	if self.connection != null:

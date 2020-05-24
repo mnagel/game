@@ -3,7 +3,7 @@ extends Container
 var player_identifier = ""
 
 func getPlayer():
-	return global.getPlayerByIdentifier(player_identifier)
+	return GameState.getPlayerByIdentifier(player_identifier)
 
 
 func _process(delta):
@@ -15,7 +15,7 @@ func _process(delta):
 
 func update():
 	$player_name.text = getPlayer()["name"]
-	$round_score.text = str("R", get_tree().get_current_scene().state.round_number, ": ", getPlayer()["score"])
+	$round_score.text = str("R", GameState.round_number, ": ", getPlayer()["score"])
 	$total_score.text = str(getPlayer()["total_score"])
 
 	if getPlayer()["bot"]:

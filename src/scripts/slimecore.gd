@@ -8,7 +8,7 @@ var distance = 0
 
 
 func _ready():
-	color = Color(ColorN(global.getPlayerByIdentifier(player_identifier)["color"]))
+	color = Color(ColorN(GameState.getPlayerByIdentifier(player_identifier)["color"]))
 	$core.modulate = color
 
 func set_safe_zone(safezone_radius):

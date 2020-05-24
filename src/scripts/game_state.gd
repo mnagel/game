@@ -1,8 +1,6 @@
 extends Node
 
-class_name GameState
-
-var players = []
+#var players = []  # TODO: reactivate
 var round_number = 0
 
 var stars = []
@@ -141,12 +139,9 @@ remotesync func client_state(state):
 
 
 
-
-
 var buggles_nodes = []
 var slimecores = []
 
-export (int) var buggles_count = 60
 var Buggle = preload('res://scenes/buggle.tscn')
 
 func reset_buggles():
@@ -155,7 +150,7 @@ func reset_buggles():
 
 func generateBuggles(scene):
 	buggles_nodes = []
-	for _i in range(0, buggles_count):
+	for _i in range(0, global.buggles_count):
 		var rng = global.rng # FIXME kill this. handle pos+speed the same way
 		var rny = rng.randf_range(-1.0, +1.0)
 		var rnx = rng.randf_range(-1.0, +1.0)
@@ -184,6 +179,37 @@ func removeSlimes(scene):
 	slimecores = []
 
 func resetScore():
-	for player in global.players.values():
+	for player in GameState.players.values():
 		player["total_score"] = 0
 		player["score"] = 0
+
+
+var players = {}
+
+func getPlayerByIndex(player_index):
+	if player_index >= 0 and player_index < players.size():
+		return players[players.keys()[player_index]]
+	else:
+		# Should never happen
+		push_error("Invalid index passed to getPlayerByIndex")
+		return null
+
+func getPlayerByIdentifier(player_identifier):
+	if player_identifier in players.keys():
+		return GameState.players[player_identifier]
+	else:
+		# Should never happen
+		push_error("Invalid identifier passed to getPlayerByIdentifier")
+		return
+
+func setPlayer(dict):
+	GameState.players[dict["identifier"]] = dict
+
+func rankPlayers():
+	var player_identifiers = players.keys()
+	player_identifiers.sort_custom(self, "comparePlayers")
+	return player_identifiers
+
+func comparePlayers(player_identifier_a, player_identifier_b):
+	return getPlayerByIdentifier(player_identifier_a)["total_score"] > getPlayerByIdentifier(player_identifier_b)["total_score"]
+

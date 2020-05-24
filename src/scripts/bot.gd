@@ -51,6 +51,6 @@ func getMnagelBotLocationChoice(main, player_id, perc):
 			best_node = pivot
 	
 	print("MNA bot (%d) acting for player %s, winning score %.1f+%.1f+%.1f"  
-	% [perc, global.getPlayerByIndex(player_id)["name"], best_score_1, best_score_2, best_score_3] 
+	% [perc, GameState.getPlayerByIndex(player_id)["name"], best_score_1, best_score_2, best_score_3] 
 	)
 	return best_node.position

@@ -1,7 +1,6 @@
 extends Node2D
 
-var GameState = preload("res://scenes/game_state.tscn")
-onready var state = GameState.instance()
+var state = GameState
 var State = enums.State
 
 # Buggles movement
@@ -14,7 +13,7 @@ var allPick_playerindex = 0
 var allPick_novaindex = 0
 
 func isCurrentPlayerBot():
-	return global.getPlayerByIndex(allPick_playerindex)["bot"]
+	return GameState.getPlayerByIndex(allPick_playerindex)["bot"]
 
 # Timers
 onready var start_timer = $start_timer
@@ -52,7 +51,7 @@ func playerDone():
 	player_timer_label.text = "25"
 	round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
 	
-	if allPick_playerindex == len(global.players):
+	if allPick_playerindex == len(GameState.players):
 		print ("state machine: allPick_playerindex: proceed nova")
 		allPick_novaindex += 1
 		allPick_playerindex = 0
@@ -62,7 +61,7 @@ func playerDone():
 
 func getOnePick():
 	# handle the transitioned-to player
-	global.highlighted = global.getPlayerByIndex(allPick_playerindex)["identifier"]
+	global.highlighted = GameState.getPlayerByIndex(allPick_playerindex)["identifier"]
 	if isCurrentPlayerBot():
 		while true:
 			if tryPutCore(Bot.getBotLocationChoice(self, allPick_playerindex)):
@@ -90,7 +89,7 @@ func transition(from, to):
 			allPick_novaindex = 0
 			state.round_number += 1
 			# Save score to variable
-			for player in global.players.values():
+			for player in GameState.players.values():
 				player["total_score"] += player["score"]
 				player["score"] = 0
 			# Clean
@@ -123,9 +122,9 @@ func transition(from, to):
 			if global.sound:
 				game_over_sfx.play()
 				
-			var ranked_players = global.rankPlayers()
-			winner_label.text = global.getPlayerByIdentifier(ranked_players[0])["name"] + " is the most shiny!"
-			showMessage(global.getPlayerByIdentifier(ranked_players[0])["name"] + " is the most shiny!")
+			var ranked_players = GameState.rankPlayers()
+			winner_label.text = GameState.getPlayerByIdentifier(ranked_players[0])["name"] + " is the most shiny!"
+			showMessage(GameState.getPlayerByIdentifier(ranked_players[0])["name"] + " is the most shiny!")
 			game_over_popup.popup()
 			for player_identifier in ranked_players:
 				var ps = player_status.instance()
@@ -157,7 +156,7 @@ func tryPutCore(position):
 		sfx.play()
 		
 	var instancedSlime = slimecore.instance()
-	instancedSlime.player_identifier = global.getPlayerByIndex(allPick_playerindex)["identifier"]
+	instancedSlime.player_identifier = GameState.getPlayerByIndex(allPick_playerindex)["identifier"]
 	instancedSlime.set_safe_zone(global.safezone_radius)
 	instancedSlime.primary = allPick_novaindex == 0
 	instancedSlime.position = position
@@ -214,12 +213,12 @@ func _input(event):
 				showMessage("Supernova overload. Explode elsewhere!\n", true)
 
 func _ready():
-	state.state = State.gameOver
+	GameState.state = State.gameOver
 	set_process(true)
 	start_timer.connect("timeout", self, "on_start_timer_timeout")
 	state.round_number = 0
 
-	for player_identifier in global.players.keys():
+	for player_identifier in GameState.players.keys():
 		var instancedPlayerStatus = player_status.instance()
 		instancedPlayerStatus.player_identifier = player_identifier
 		players_board.add_child(instancedPlayerStatus)
@@ -235,7 +234,7 @@ func on_start_next_round_timer_timeout():
 	if state.round_number < global.num_rounds:
 			transition(State.afterExplosions, State.freefly)
 	else:
-		for player in global.players.values():
+		for player in GameState.players.values():
 			player["total_score"] += player["score"]
 			player["score"] = 0  # Reset round score
 		transition(State.afterExplosions, State.gameOver)

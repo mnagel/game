@@ -25,10 +25,10 @@ func getRandName():
 		"Oyz",
 		"Fooba"
 	]
-	return names[randi() % names.size()]
+	return names[global.rng.randi() % names.size()]
 
 var player_identifier = ""
-var player_name = getRandName() # FIXME broken for initial two players
+var player_name = getRandName()
 var color = ""
 var bot = false
 

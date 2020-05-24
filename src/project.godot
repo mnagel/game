@@ -9,18 +9,12 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Node",
-"class": "GameState",
-"language": "GDScript",
-"path": "res://scripts/game_state.gd"
-}, {
 "base": "Reference",
 "class": "enums",
 "language": "GDScript",
 "path": "res://scripts/enums.gd"
 } ]
 _global_script_class_icons={
-"GameState": "",
 "enums": ""
 }
 
@@ -35,6 +29,7 @@ config/icon="res://assets/buggle.png"
 
 global="*res://scripts/global.gd"
 Bot="*res://scripts/bot.gd"
+GameState="*res://scripts/game_state.gd"
 
 [debug]
 

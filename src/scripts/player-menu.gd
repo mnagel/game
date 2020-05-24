@@ -2,7 +2,7 @@ extends Control
 
 
 # Player node
-var Player = preload("res://scenes/player_panel.tscn")
+var PlayerPanel = preload("res://scenes/player_panel.tscn")
 
 # Nodes
 onready var players_container = $scroll/container
@@ -13,12 +13,12 @@ onready var sfx = $sfx
 
 # Builtin
 func _ready():
-	if global.players.size() == 0:
+	if GameState.players.size() == 0:
 		_on_add_pressed()
 		_on_add_pressed()
 	
-	for player in global.players.values(): # get the available players
-		var instancedPlayerSettings = Player.instance()
+	for player in GameState.players.values(): # get the available players
+		var instancedPlayerSettings = PlayerPanel.instance()
 		instancedPlayerSettings.player_identifier = player["identifier"]
 		instancedPlayerSettings.player_name = player["name"]
 		instancedPlayerSettings.color = player["color"]
@@ -32,6 +32,8 @@ func _process(_delta):
 	else:
 		lp_msg.visible = false
 
+var Main = preload("res://scenes/main.tscn")
+
 # Signals
 func _on_play_pressed():
 	if global.sound: sfx.play()
@@ -41,19 +43,19 @@ func _on_play_pressed():
 	else:
 		for ps in _players:
 			var dict = ps.generateDict()
-			global.setPlayer(dict)
+			GameState.setPlayer(dict)
 		get_tree().change_scene("res://scenes/main.tscn")
 
 func on_bot_toggled(button_pressed, extra_arg_0):
-	global.getPlayerByIdentifier(extra_arg_0)["bot"] = button_pressed
+	GameState.getPlayerByIdentifier(extra_arg_0)["bot"] = button_pressed
 	if global.sound: sfx.play()
 
 func _on_player_name_text_entered(new_text, extra_arg_0):
-	global.getPlayerByIdentifier(extra_arg_0)["name"] = new_text
+	GameState.getPlayerByIdentifier(extra_arg_0)["name"] = new_text
 
 func _on_add_pressed():
 	if len(global.available_colors):
-		var instancedPlayerSettings = Player.instance()
+		var instancedPlayerSettings = PlayerPanel.instance()
 		players_container.add_child(instancedPlayerSettings)
 		if global.sound: sfx.play()
 		
