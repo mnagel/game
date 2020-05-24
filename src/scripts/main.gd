@@ -41,9 +41,9 @@ onready var game_over_sfx = $game_over_sfx
 
 func playerDone():
 	# handle the transitioned-from player
+	player_timer_label.text = ""
 	GameState.playerDone()
 	allPick_playerindex += 1
-	player_timer_label.text = "25"
 	round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
 	
 	if allPick_playerindex == GameState.getPlayerCount():
@@ -65,6 +65,7 @@ func getOnePick():
 				continue
 	else:
 		player_timer.start()
+		player_timer_label.text = "25"
 		showMessage("Place your supernova")
 
 func transition(from, to):
@@ -187,7 +188,7 @@ func _physics_process(_delta):
 			else:
 				transition(State.explosions, State.allPick)
 			
-	if state.state == State.freefly:
+	if state.state == State.allPick:
 			player_timer_label.text = str(int(player_timer.time_left))
 
 func _input(event):
@@ -209,6 +210,7 @@ func _input(event):
 				showMessage("Supernova overload. Explode elsewhere!\n", true)
 
 func _ready():
+	player_timer_label.text = ""
 	GameState.state = State.gameOver
 	set_process(true)
 	start_timer.connect("timeout", self, "on_start_timer_timeout")
