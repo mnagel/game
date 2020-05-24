@@ -12,12 +12,15 @@
 Can be played at 👉 https://mnagel.github.io/game/
 
 Known good setups:
+
 * Firefox on Android
 * Chrome on Windows
 * Chrome on Linux
 
 Known bad setups:
+
 * Firefox on Windows
+* Firefox on Linux with NVidia graphics
 * Firefox on iOS
 * Safari on iOS
 * Edge on Windows
