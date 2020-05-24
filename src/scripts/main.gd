@@ -66,7 +66,35 @@ func getOnePick():
 	else:
 		player_timer.start()
 		player_timer_label.text = "25"
-		showMessage("Place your supernova")
+		showMessage("%s, please place your SuperNeoNova %d!" % [state.getCurrentPlayer().display_name, allPick_novaindex+1], true)
+
+
+func animateRoundStart():
+	round_anim_label.text = "UNIVERSE " + str(state.round_number)
+	animation_player.play("round")
+	
+	if global.sound:
+		var sndfile = state.round_number
+		if state.round_number > 10 or state.round_number == global.num_rounds:
+			sndfile = 10 # play final round for last round and prevent bad access
+		
+		round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
+		round_sfx.play()
+
+func animateGameEnd(ranked_players):
+	if global.sound:
+		game_over_sfx.play()
+	
+	winner_label.text = ranked_players[0].display_name + " is the most shiny!"
+
+	for player in ranked_players:
+		var ps = player_status.instance()
+		ps.player = player
+		ps.update()
+		player_ranking_ui.add_child(ps)
+
+	game_over_popup.popup()
+
 
 func transition(from, to):
 	# "from" is purely to check that we were actually in the state that we
@@ -80,6 +108,8 @@ func transition(from, to):
 	match to:
 		State.freefly:
 			get_tree().paused = false
+			showMessage("Watch the world go by...", true)
+			
 			allPick_playerindex = 0
 			allPick_novaindex = 0
 			state.round_number += 1
@@ -88,43 +118,32 @@ func transition(from, to):
 			#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
 			state.reset(self, true, true, true, true, true)
 			state.generateStars(self)
-	
+
 			start_timer.start()
-			round_anim_label.text = "UNIVERSE " + str(state.round_number)
-			animation_player.play("round")
-			if global.sound:
-				var sndfile = state.round_number
-				if state.round_number > 10 or state.round_number == global.num_rounds:
-					sndfile = 10 # play final round for last round and prevent bad access
-				
-				round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
-				round_sfx.play()
+			animateRoundStart()
 		State.allPick:
 			get_tree().paused = true
+			showMessage("overwritten in getOnePick", true)
 			getOnePick()
 		State.explosions:
 			get_tree().paused = false
+			showMessage("Watch the universe explode...", true)
+
 			#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
 			state.reset(self, true, false, true, false, false)
-			showMessage("Watching the universe explode", true)
 		State.afterExplosions:
+			get_tree().paused = false
 			showMessage("Reflect upon your actions.", true)
+
 			for player in GameState.getAllPlayers():
 				player["total_score"] += player["score"]
 			start_next_round_timer.start()
 		State.gameOver:
-			if global.sound:
-				game_over_sfx.play()
-				
+			get_tree().paused = false
 			var ranked_players = GameState.getPlayersByScore()
-			winner_label.text = ranked_players[0].display_name + " is the most shiny!"
 			showMessage(ranked_players[0].display_name + " is the most shiny!")
-			game_over_popup.popup()
-			for player in ranked_players:
-				var ps = player_status.instance()
-				ps.player = player
-				ps.update()
-				player_ranking_ui.add_child(ps)
+
+			animateGameEnd(ranked_players)
 			set_process(false)
 
 func canPlaceNova(position):
