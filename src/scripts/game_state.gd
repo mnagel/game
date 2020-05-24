@@ -12,6 +12,8 @@ const freefly_timeout = 5
 const turn_timeout = 15
 const after_explosions_timeout = 7
 
+const has_network = false
+
 onready var players = Node.new()
 
 func _ready():
@@ -19,22 +21,25 @@ func _ready():
 	add_child(players)
 
 func sync_players():
-	# Iterate over all players and send their object state
-	# TODO: Initial state
-	for player in players.get_children():
-		player.update_player()
+	if has_network:
+		# Iterate over all players and send their object state
+		# TODO: Initial state
+		for player in players.get_children():
+			player.update_player()
 
 func sync_stars():
-	# Iterate over all stars and send their object state
-	# TODO: We really need to deal properly with initialization here
-	pass
+	if has_network:
+		# Iterate over all stars and send their object state
+		# TODO: We really need to deal properly with initialization here
+		pass
 	
 func sync_picks():
-	# Iterate over all picks and send them
-	for player_id in novas:
-		var nova = novas[player_id]
+	if has_network:
+		# Iterate over all picks and send them
+		for player_id in novas:
+			var nova = novas[player_id]
+			pass
 		pass
-	pass
 
 # Game:
 #  - Synchronize players
@@ -188,7 +193,8 @@ func resetScore():
 	for player in GameState.getAllPlayers():
 		player.total_score = 0
 		player.score = 0
-		player.update_player()
+		if has_network:
+			player.update_player()
 
 
 var Player = preload('res://scenes/player.tscn')
