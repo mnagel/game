@@ -50,7 +50,7 @@ func playerDone():
 	player_timer_label.text = "25"
 	round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
 	
-	if allPick_playerindex == len(GameState.players):
+	if allPick_playerindex == GameState.getPlayerCount():
 		print ("state machine: allPick_playerindex: proceed nova")
 		allPick_novaindex += 1
 		allPick_playerindex = 0

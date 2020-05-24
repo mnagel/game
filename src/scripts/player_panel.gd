@@ -27,7 +27,7 @@ func _on_player_name_text_changed(new_text):
 
 
 func _on_remove_pressed():
-	GameState.players.erase(player)
+	GameState.delPlayer(player)
 	
 	# Remove self
 	get_parent().remove_child(self)

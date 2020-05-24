@@ -12,6 +12,12 @@ const freefly_timeout = 5
 const turn_timeout = 15
 const after_explosions_timeout = 7
 
+onready var players = Node.new()
+
+func _ready():
+	players.set_name("players")
+	add_child(players)
+
 func sync_players():
 	# Iterate over all players and send their object state
 	# TODO: Initial state
@@ -185,19 +191,21 @@ func resetScore():
 
 
 var Player = preload('res://scenes/player.tscn')
-var players = []
 var currentPlayerIndex = 0
 
 func playerDone():
 	currentPlayerIndex += 1
-	if currentPlayerIndex == len(players):
+	if currentPlayerIndex == getPlayerCount():
 		currentPlayerIndex = 0
 
+func getPlayerCount():
+	return len(players.get_children())
+
 func getCurrentPlayer():
-	return players[currentPlayerIndex]
+	return players.get_children()[currentPlayerIndex]
 
 func getAllPlayers():
-	return players
+	return players.get_children()
 	
 func getPlayersByScore():
 	var ps = getAllPlayers()
@@ -208,9 +216,11 @@ func byScore(p1, p2):
 	return p1.total_score > p2.total_score
 
 func addPlayer():
-	var instancedPlayer = Player.instance()
-	instancedPlayer.name = global.available_names[global.rng.randi() % global.available_names.size()]
-	instancedPlayer.color = ColorN(global.available_colors[global.rng.randi() % global.available_colors.size()])
+	var player = Player.instance()
+	player.name = global.available_names[global.rng.randi() % global.available_names.size()]
+	player.color = ColorN(global.available_colors[global.rng.randi() % global.available_colors.size()])
+	players.add_child(player)
+	return player
 	
-	players += [instancedPlayer]
-	return instancedPlayer
+func delPlayer(player):
+	players.remove_child(player)

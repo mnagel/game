@@ -13,13 +13,13 @@ onready var sfx = $sfx
 # Builtin
 func _ready():
 	# re-add previous players
-	for player in GameState.players: # get the available players
+	for player in GameState.getAllPlayers(): # get the available players
 		var myPlayerPanel = PlayerPanel.instance()
 		myPlayerPanel.player = player
 		myPlayerPanel.update()
 		players_container.add_child(myPlayerPanel)
 		
-	if GameState.players.size() == 0:
+	if GameState.getPlayerCount() == 0:
 		_on_add_pressed()
 		_on_add_pressed()
 
