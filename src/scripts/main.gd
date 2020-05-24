@@ -6,18 +6,15 @@ var State = enums.State
 
 # Buggles movement
 var buggle = preload("res://scenes/buggle.tscn")
+var slimecore = preload("res://scenes/slimecore.tscn")
+
+var player_status = preload("res://scenes/player_status.tscn")
 
 var allPick_playerindex = 0
 var allPick_novaindex = 0
 
 func isCurrentPlayerBot():
 	return global.getPlayerByIndex(allPick_playerindex)["bot"]
-
-# Players
-var order = []
-
-# Rounds 
-var num_rounds = 4
 
 # Timers
 onready var start_timer = $start_timer
@@ -32,7 +29,7 @@ onready var messages_board = $messages
 onready var player_timer_label = $player_timer_label
 onready var winner_label = $gui/game_over/winner
 onready var game_over_popup = $gui/game_over
-onready var players_order = $gui/game_over/order
+onready var player_ranking_ui = $gui/game_over/order
 onready var round_label = $round
 onready var players_board = $players_container
 onready var round_anim_label = $round_anim_label
@@ -42,23 +39,10 @@ onready var mouse_pos_indicator = $mouse_pos
 onready var timeout_popup = $timeout
 onready var warn_player = $warn_player
 
-
-# Slimes
-var slimecore = preload("res://scenes/slimecore.tscn")
-var player_status = preload("res://scenes/player_status.tscn")
-
-# Viewport limits
-var margin = global.margin
-var min_limits = global.min_limits
-var max_limits = global.max_limits
-
 # Sfx
 onready var sfx = $sfx
 onready var round_sfx = $round_sfx
 onready var game_over_sfx = $game_over_sfx
-
-# Random number generator
-var rng = global.rng
 
 func playerDone():
 	# handle the transitioned-from player
@@ -66,7 +50,7 @@ func playerDone():
 
 	global.highlighted = ""
 	player_timer_label.text = "25"
-	round_label.text = str(state.round_number) + "/" + str(num_rounds)
+	round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
 	
 	if allPick_playerindex == len(global.players):
 		print ("state machine: allPick_playerindex: proceed nova")
@@ -120,7 +104,7 @@ func transition(from, to):
 			animation_player.play("round")
 			if global.sound:
 				var sndfile = state.round_number
-				if state.round_number > 10 or state.round_number == num_rounds:
+				if state.round_number > 10 or state.round_number == global.num_rounds:
 					sndfile = 10 # play final round for last round and prevent bad access
 				
 				round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
@@ -139,15 +123,14 @@ func transition(from, to):
 			if global.sound:
 				game_over_sfx.play()
 				
-			order = global.rankPlayers()
-			winner_label.text = global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!"
-			showMessage(global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!")
+			var ranked_players = global.rankPlayers()
+			winner_label.text = global.getPlayerByIdentifier(ranked_players[0])["name"] + " is the most shiny!"
+			showMessage(global.getPlayerByIdentifier(ranked_players[0])["name"] + " is the most shiny!")
 			game_over_popup.popup()
-			global.highlighted = order[0]
-			for player_identifier in order:
+			for player_identifier in ranked_players:
 				var ps = player_status.instance()
 				ps.player_identifier = player_identifier
-				players_order.add_child(ps)
+				player_ranking_ui.add_child(ps)
 				ps.update()
 			set_process(false)
 
@@ -219,12 +202,11 @@ func _input(event):
 			
 			# only inside play field	
 			var mouse_pos = get_global_mouse_position()
-			if not (
-				mouse_pos.x > min_limits.x
-				and mouse_pos.y > min_limits.y
-				and mouse_pos.x < max_limits.x
-				and mouse_pos.y < max_limits.y
-			):
+			if ( false
+				or mouse_pos.x < global.min_limits.x
+				or mouse_pos.y < global.min_limits.y
+				or mouse_pos.x > global.max_limits.x
+				or mouse_pos.y > global.max_limits.y ):
 				return
 				
 			if not tryPutCore(mouse_pos):
@@ -250,7 +232,7 @@ func on_start_timer_timeout():
 	transition(State.freefly, State.allPick)
 
 func on_start_next_round_timer_timeout():
-	if state.round_number < num_rounds:
+	if state.round_number < global.num_rounds:
 			transition(State.afterExplosions, State.freefly)
 	else:
 		for player in global.players.values():

@@ -1,13 +1,10 @@
 extends Node
 
-# Random number generator
-var rng = global.rng
-
 func getBotLocationChoice(main, player_id):
 	if player_id != 0:
 		return getMnagelBotLocationChoice(main, player_id, player_id * 20 + 20)
 	else:
-		return getMidstPosition(global.buggles_nodes) + global.getRandomPosition() * rng.randf_range(0.2, 0.5)
+		return getMidstPosition(main.state.buggles_nodes) + global.getRandomPosition() * global.rng.randf_range(0.2, 0.5)
 
 func getMidstPosition(buggles_nodes):
 	var pos = Vector2(0, 0)
@@ -16,27 +13,28 @@ func getMidstPosition(buggles_nodes):
 	pos = pos / buggles_nodes.size()
 	return pos
 
-func getMnagelBotLocationChoice(main, player_id, perc):	
+func getMnagelBotLocationChoice(main, player_id, perc):
+	var state = main.state
 	var best_score_1 = 0 # in connection reach
 	var best_score_2 = 0 # in safe reach
 	var best_score_3 = 0 # other
-	var best_node = global.buggles_nodes[0]
+	var best_node = state.buggles_nodes[0]
 	
-	for pivot in global.buggles_nodes:
+	for pivot in state.buggles_nodes:
 		# only consider outside of safe zones
 		if not main.canPlaceCore(pivot.position):
 			continue
 			
 		# we need some non-determinism to make multiple instances of the bot feasible
-		if rng.randi_range(0, 100) > perc:
+		if global.rng.randi_range(0, 100) > perc:
 			continue # disregard node for choice 
 		
 		var pivot_score_1 = 0
 		var pivot_score_2 = 0
 		var pivot_score_3 = 0
-		for other in global.buggles_nodes:
+		for other in state.buggles_nodes:
 			# we need some non-determinism to make multiple instances of the bot feasible
-			if rng.randi_range(0, 100) > perc:
+			if global.rng.randi_range(0, 100) > perc:
 				continue # disregard node for scoring 
 			
 			var distance = (pivot.position - other.position).length()
