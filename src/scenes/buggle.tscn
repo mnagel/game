@@ -64,7 +64,7 @@ texture = ExtResource( 1 )
 [node name="range" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
 
-[node name="sfx" type="AudioStreamPlayer2D" parent="."]
+[node name="sfx" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 3 )
 volume_db = -30.0
 
