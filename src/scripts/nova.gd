@@ -1,12 +1,15 @@
 extends Area2D
 
-var type = "slime"
+var Startype = enums.Startype
+
+var type = Startype.nova
 var primary = true
-var player_identifier = ""
+var player = null
+var distance = 0
 
 
 func _ready():
-	$core.modulate = Color(ColorN(global.getPlayerByIdentifier(player_identifier)["color"]))
+	$core.modulate = player.color
 
 func set_safe_zone(safezone_radius):
 	var spriteWidth = $safeZone.texture.get_width()

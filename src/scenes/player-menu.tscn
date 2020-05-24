@@ -10,7 +10,6 @@
 [ext_resource path="res://assets/fonts/df_btn.tres" type="DynamicFont" id=8]
 [ext_resource path="res://assets/playfield.png" type="Texture" id=9]
 
-
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
 
@@ -18,12 +17,12 @@ font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
 size = 32
 font_data = SubResource( 1 )
 
-[sub_resource type="DynamicFontData" id=16]
+[sub_resource type="DynamicFontData" id=3]
 font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
 
-[sub_resource type="DynamicFont" id=17]
+[sub_resource type="DynamicFont" id=4]
 size = 18
-font_data = SubResource( 16 )
+font_data = SubResource( 3 )
 
 [sub_resource type="DynamicFontData" id=5]
 font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
@@ -140,7 +139,7 @@ margin_top = 245.211
 margin_right = 238.425
 margin_bottom = 300.211
 rect_pivot_offset = Vector2( 54.118, 104.006 )
-custom_fonts/font = SubResource( 17 )
+custom_fonts/font = SubResource( 4 )
 text = "Add at least 2 players
 to play"
 align = 1
@@ -150,7 +149,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="sfx" type="AudioStreamPlayer2D" parent="."]
+[node name="sfx" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )
 volume_db = 10.0
 
@@ -226,7 +225,7 @@ margin_top = 23.0
 margin_right = 618.0
 margin_bottom = 191.0
 rect_pivot_offset = Vector2( 54.118, 104.006 )
-custom_fonts/font = SubResource( 17 )
+custom_fonts/font = SubResource( 4 )
 text = "SuperNeoNova
 https://mnagel.github.io/game/"
 align = 1

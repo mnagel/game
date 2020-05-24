@@ -1,100 +1,182 @@
 extends Node2D
 
-# separates the phases of a round, i.e. primary and secondary slime core placement
-var primary_core_phase = true
+var state = GameState
+var State = enums.State
+var Startype = enums.Startype
 
-# Buggles movement
-var connected_buggles = 0
-var buggle = preload("res://scenes/buggle.tscn")
-var pause_buggles = false
+# Stargfxs movement
+var stargfx = preload("res://scenes/stargfx.tscn")
+var nova = preload("res://scenes/nova.tscn")
 
-# Players
-var turn_msg_displayed = false
-var order = []
+var player_status = preload("res://scenes/player_status.tscn")
 
-# Rounds 
-var num_rounds = 4
+var allPick_playerindex = 0
+var allPick_novaindex = 0
+
+func isCurrentPlayerBot():
+	return GameState.getCurrentPlayer().bot
 
 # Timers
 onready var start_timer = $start_timer
 onready var start_next_round_timer = $start_next_round_timer
-onready var bot_thinking = $bot_thinking
 onready var player_timer = $player_timer
 
 # Other Nodes
-onready var pause_btn = $panel/buttons/pause
-onready var pause_scr = $paused
 onready var sound_btn = $panel/buttons/sound
 onready var messages_board = $messages
 onready var player_timer_label = $player_timer_label
 onready var winner_label = $gui/game_over/winner
 onready var game_over_popup = $gui/game_over
-onready var players_order = $gui/game_over/order
+onready var player_ranking_ui = $gui/game_over/order
 onready var round_label = $round
 onready var players_board = $players_container
 onready var round_anim_label = $round_anim_label
 onready var animation_player = $anim
-onready var manim = $manim
-onready var mouse_pos_indicator = $mou/se_pos
-onready var timeout_popup = $timeout
 onready var warn_player = $warn_player
-
-
-# Slimes
-var slimecore = preload("res://scenes/slimecore.tscn")
-var player_status = preload("res://scenes/player_status.tscn")
-
-# Viewport limits
-var margin = global.margin
-var min_limits = global.min_limits
-var max_limits = global.max_limits
 
 # Sfx
 onready var sfx = $sfx
 onready var round_sfx = $round_sfx
 onready var game_over_sfx = $game_over_sfx
 
-# Random number generator
-var rng = global.rng
+func playerDone():
+	# handle the transitioned-from player
+	player_timer_label.text = ""
+	GameState.playerDone()
+	allPick_playerindex += 1
+	round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
+	
+	if allPick_playerindex == GameState.getPlayerCount():
+		print ("state machine: allPick_playerindex: proceed nova")
+		allPick_novaindex += 1
+		allPick_playerindex = 0
+		transition(State.allPick, State.explosions)
+	else:
+		getOnePick()
 
-# Gameplay
-var game_over = false
-
-
-func canPlaceCore(position):
-	# secondary cores need to stay away from primary cores
-	if not primary_core_phase:
-		for slime in global.slimecores:
-			if slime.primary:
-				var slimes_distance = slime.position - position
-				if slimes_distance.length() <= global.safezone_radius:
-					return false
+func getOnePick():
+	# handle the transitioned-to player
+	if isCurrentPlayerBot():
+		while true:
+			if tryPutNova(Bot.getBotLocationChoice(self, allPick_playerindex)):
+				break
 			else:
-				# secondary cores may be closeby, because their position is not known to the player
+				# position was illegal. try again
 				continue
+	else:
+		player_timer.start()
+		player_timer_label.text = "25"
+		showMessage("%s, please place your SuperNeoNova %d!" % [state.getCurrentPlayer().display_name, allPick_novaindex+1], true)
+
+
+func animateRoundStart():
+	round_anim_label.text = "UNIVERSE " + str(state.round_number)
+	animation_player.play("round")
+	
+	if global.sound:
+		var sndfile = state.round_number
+		if state.round_number > 10 or state.round_number == global.num_rounds:
+			sndfile = 10 # play final round for last round and prevent bad access
+		
+		round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
+		round_sfx.play()
+
+func animateGameEnd(ranked_players):
+	if global.sound:
+		game_over_sfx.play()
+	
+	winner_label.text = ranked_players[0].display_name + " is the most shiny!"
+
+	for player in ranked_players:
+		var ps = player_status.instance()
+		ps.player = player
+		ps.update()
+		player_ranking_ui.add_child(ps)
+
+	game_over_popup.popup()
+
+
+func transition(from, to):
+	# "from" is purely to check that we were actually in the state that we
+	# were expecting, i.e. to force you to think.
+	assert(state.state == from)
+	print("state machine: %s -> %s.     universe:%s nova:%s player:%s" % 
+		[state.StateToString(from), state.StateToString(to), state.round_number, allPick_novaindex, allPick_playerindex]
+	)
+	state.state = to
+
+	match to:
+		State.freefly:
+			get_tree().paused = false
+			showMessage("Watch the world go by...", true)
+			
+			allPick_playerindex = 0
+			allPick_novaindex = 0
+			state.round_number += 1
+			round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
+
+			#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
+			state.reset(self, true, true, true, true, true)
+			state.generateStars(self)
+
+			start_timer.start()
+			animateRoundStart()
+		State.allPick:
+			get_tree().paused = true
+			showMessage("overwritten in getOnePick", true)
+			getOnePick()
+		State.explosions:
+			get_tree().paused = false
+			showMessage("Watch the universe explode...", true)
+
+			#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
+			state.reset(self, true, false, true, false, false)
+		State.afterExplosions:
+			get_tree().paused = false
+			showMessage("Reflect upon your actions.", true)
+
+			for player in GameState.getAllPlayers():
+				player["total_score"] += player["score"]
+			start_next_round_timer.start()
+		State.gameOver:
+			get_tree().paused = false
+			var ranked_players = GameState.getPlayersByScore()
+			showMessage(ranked_players[0].display_name + " is the most shiny!")
+
+			animateGameEnd(ranked_players)
+			set_process(false)
+
+func canPlaceNova(position):
+	# secondary novas need to stay away from primary novas
+	for nova in state.novas:
+		if allPick_novaindex > 0 and nova.primary: # FIXME check existing nova generation vs nova generation being placed
+			var distance = nova.position - position
+			if distance.length() <= global.safezone_radius:
+				return false
+		else:
+			# secondary novas may be closeby, because their position is not known to the player
+			continue
 	return true
 
 
 # Functions
-func tryPutCore(position):
-	if not canPlaceCore(position):
+func tryPutNova(position):
+	if not canPlaceNova(position):
 		return false
 
-	var instancedSlime = slimecore.instance()
-	instancedSlime.player_identifier = global.getPlayerByIndex(global.current_player_index)["identifier"]
-	instancedSlime.set_safe_zone(global.safezone_radius)
-	instancedSlime.primary = primary_core_phase
-	instancedSlime.position = position
-
-	# core can actually be put here
+	# nova can actually be put here
 	if global.sound:
 		sfx.play()
-
-	global.slimecores.append(instancedSlime)
-	add_child(instancedSlime)
-	player_timer.stop()
-	global.current_player_index += 1
-	turn_msg_displayed = false
+		
+	var mynova = nova.instance()
+	mynova.player = GameState.getCurrentPlayer()
+	mynova.set_safe_zone(global.safezone_radius)
+	mynova.primary = allPick_novaindex == 0
+	mynova.position = position
+	state.novas.append(mynova)
+	add_child(mynova)
+	
+	playerDone()
 	return true
 
 func warnPlayer(): # Warn the player visually
@@ -106,214 +188,75 @@ func showMessage(msg, clear = false):
 	messages_board.text = msg + "\n"
 	return
 
-# Builtin
+func allStarsExploded(stars):
+	for star in stars:
+		if star.type == Startype.star:
+			return false
+	return true
+
+# simulate the game at 60 fps
+# repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
-	if connected_buggles >= global.buggles_count and global.current_round <= num_rounds:
-		connected_buggles = 0
-		if len(global.buggles_nodes):
-			pause_buggles = true
-		else:
-			# New round
-			if start_next_round_timer.is_stopped() and global.current_round < num_rounds:
-				showMessage("Reflect upon your actions.", true)
-				start_next_round_timer.start()
-			else:  # Game Over`
-				# Save score
-				for player in global.players.values():
-					player["total_score"] += player["score"]
-					player["score"] = 0  # Reset round score
-				game_over = true
-
-	# Hide slimes while inputing to prevent cheating
-	for slime in global.slimecores:
-		if slime.primary:
-			slime.visible = (not pause_buggles) or (not primary_core_phase)
-		else:  # the secondary slimes
-			slime.visible = (not pause_buggles)
-
-	# Handle turns, buggles etc
-	if pause_buggles:
-		# Clear message box
-		if not turn_msg_displayed: showMessage("id128736 should not happen", true)
-		# Start countdown
-		if player_timer.is_stopped():
-			player_timer.start()
-		# Update countdown timer's label
-		else:
+	if state.state == State.explosions:
+		if allStarsExploded(GameState.getAllStargfxs()):
+			if allPick_novaindex == 2:
+				transition(State.explosions, State.afterExplosions)
+			else:
+				transition(State.explosions, State.allPick)
+			
+	if state.state == State.allPick:
 			player_timer_label.text = str(int(player_timer.time_left))
-		if global.current_player_index < len(global.players):  # If all the players haven't played yet
-			# Highlight the current player
-			global.highlighted = global.getPlayerByIndex(global.current_player_index)["identifier"]
-			# If a human is playing
-			if not global.isCurrentPlayerBot():
-				if primary_core_phase:
-					if not turn_msg_displayed:
-						showMessage("Place your primary supernova")
-						turn_msg_displayed = true
-				else:
-					if not turn_msg_displayed:
-						showMessage("Place your secondary supernova")
-						if global.sound:
-							sfx.play()
-						turn_msg_displayed = true
-			else:
-				showMessage("[Bot] Thinking ...")
-				# Bot thinking delay, a random delay
-				if bot_thinking.is_stopped():
-					var bot_think_delay = rng.randf_range(0.6, 1.8)
-					bot_think_delay = 0
-					bot_thinking.start(bot_think_delay)
-
-	# If nobody is playing, aka: buggles are moving
-	else:
-		# display reviewing message, only when there are slimes
-		if global.slimecores.size():
-			if start_next_round_timer.is_stopped():
-				showMessage("Watching the universe explode", true)
-			else:
-				showMessage("Preparing fresh universe. Reflect upon your actions.", true)
-		else:
-			showMessage("Watch the world go by.", true)
-		player_timer.stop()
-		global.highlighted = ""  # It's no one's turn, when buggles are moving
-		# To prevent countdown from showing 0 when nobody is playing
-		player_timer_label.text = "25"
-		turn_msg_displayed = false
-
-	# If all players have played their roles
-	if global.current_player_index >= len(global.players):
-		if len(global.buggles_nodes) and not primary_core_phase:  # if this is the secondary slime input
-			showMessage("resetting now", true)
-			global.resetBuggles()
-		if primary_core_phase and global.slimecores.size() != 0:  # If this is the primary slime input and all players have played, then move to 2nd slime input
-			global.current_player_index = 0  # First player's turn
-			primary_core_phase = false
-		if global.slimecores.size() != 0: 
-			pause_buggles = false  # make buggles move
-		else:
-			# If timeout and nobody has played
-			player_timer.stop()
-			if not timeout_popup.visible: 
-				timeout_popup.popup()
-
-	if game_over:
-		if global.sound:
-			game_over_sfx.play()
-		
-		order = global.rankPlayers()
-		winner_label.text = global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!"
-		showMessage(global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!")
-		game_over_popup.popup()
-		global.highlighted = order[0]
-		for player_identifier in order:
-			var ps = player_status.instance()
-			ps.player_identifier = player_identifier
-			ps.update()
-			players_order.add_child(ps)
-		set_process(false)
-
-	# Update the round label
-	round_label.text = str(global.current_round) + "/" + str(num_rounds)
-	# Classifie the players according to their total score
-	order = global.rankPlayers()
 
 func _input(event):
-	if event is InputEventMouseButton and not get_tree().paused and not timeout_popup.visible:
-		if event.is_pressed() and event.button_index == BUTTON_LEFT and pause_buggles:
+	if state.state == State.allPick and event.is_action_pressed('put_nova'):
+			if isCurrentPlayerBot():
+					return
+			
+			# only inside play field	
 			var mouse_pos = get_global_mouse_position()
-			# If mouse input is inside of the playfield
-			if (
-				mouse_pos.x > min_limits.x
-				and mouse_pos.y > min_limits.y
-				and mouse_pos.x < max_limits.x
-				and mouse_pos.y < max_limits.y
-			):
-				# If the player hasn't played yet, and is human
-				if global.current_player_index < len(global.players) and not global.isCurrentPlayerBot():
-					if not tryPutCore(mouse_pos):
-						warnPlayer()
-						showMessage("Supernova overload. Explode elsewhere!\n", true)
+			if ( false
+				or mouse_pos.x < global.min_limits.x
+				or mouse_pos.y < global.min_limits.y
+				or mouse_pos.x > global.max_limits.x
+				or mouse_pos.y > global.max_limits.y ):
+				return
+				
+			if not tryPutNova(mouse_pos):
+				warnPlayer()
+				showMessage("Supernova overload. Explode elsewhere!\n", true)
 
 func _ready():
+	player_timer_label.text = ""
+	GameState.state = State.gameOver
 	set_process(true)
 	start_timer.connect("timeout", self, "on_start_timer_timeout")
-	global.current_round = 0
-	game_over = false
-	for player_identifier in global.players.keys():
-		var instancedPlayerStatus = player_status.instance()
-		instancedPlayerStatus.player_identifier = player_identifier
-		instancedPlayerStatus.update()
-		players_board.add_child(instancedPlayerStatus)
-	on_start_next_round_timer_timeout()
+	state.round_number = 0
+
+	for player in GameState.getAllPlayers():
+		var myPlayerPanel = player_status.instance()
+		myPlayerPanel.player = player
+		players_board.add_child(myPlayerPanel)
+		myPlayerPanel.update()
+	
+	transition(State.gameOver, State.freefly)
 
 # Signals
 func on_start_timer_timeout():
-	# Stop buggles after an interval
-	pause_buggles = not pause_buggles
+	transition(State.freefly, State.allPick)
 
 func on_start_next_round_timer_timeout():
-	global.current_round += 1
-	# Save score to variable
-	for player in global.players.values():
-		player["total_score"] += player["score"]
-		player["score"] = 0
-	# Clean
-	global.removeBackupBuggles(self)
-	global.removeSlimes(self)
-	# Build round
-	global.generateBuggles(self)
-	# Start the round
-	primary_core_phase = true
-	global.current_player_index = 0
-	start_timer.start()
-	round_anim_label.text = "UNIVERSE " + str(global.current_round)
-	animation_player.play("round")
-	if global.sound:
-		var sndfile = global.current_round
-		if global.current_round > 10 or global.current_round == num_rounds:
-			sndfile = 10 # play final round for last round and prevent bad access
-		
-		round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
-		round_sfx.play()
-
-func on_bot_thinking_timeout():
-	while true:	
-		if tryPutCore(Bot.getBotLocationChoice(self, global.current_player_index)):
-			break
-		else:
-			# position was illegal. try again
-			continue
-	player_timer.stop()
+	if state.round_number < global.num_rounds:
+		transition(State.afterExplosions, State.freefly)
+	else:
+		transition(State.afterExplosions, State.gameOver)
 
 func on_player_timer_timeout():
-	global.current_player_index += 1
-	if pause_buggles:
-		player_timer.start()
-	elif global.slimecores.size == 0:
-		showMessage("Nothing exploded, moving on to next universe...")
-		global.current_round += 1
-
-func _on_restart_pressed():
-	if get_tree().paused:
-		get_tree().paused = false
-	if pause_scr.visible:
-		pause_scr.visible = false
-	global.resetScore()
-	return get_tree().reload_current_scene()
+	playerDone() # consider this player done
 
 func _on_exit_pressed():
-	if get_tree().paused:
-		get_tree().paused = false
-	return get_tree().change_scene("res://scenes/player-menu.tscn")
-
-func _on_pause_pressed():
-	get_tree().paused = not get_tree().paused
-	player_timer.paused = not player_timer.paused and (not player_timer.is_stopped())
-	pause_scr.visible = not pause_scr.visible
-	if get_tree().paused:
-		pause_btn.text = "RESUME"
-	else:
-		pause_btn.text = "PAUSE"
+	#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
+	state.reset(self, true, true, true, true, true)
+	return get_tree().change_scene_to(load("res://scenes/player-menu.tscn"))
 
 func _on_sound_pressed():
 	global.sound = not global.sound
@@ -322,16 +265,6 @@ func _on_sound_pressed():
 	else:
 		sound_btn.text = "SOUND:OFF"
 
-func _on_next_round_btn_pressed():
-	timeout_popup.visible = false
-	pause_buggles = false
-	global.resetBuggles()
-	start_timer.start()
-	global.current_player_index = 0
-	if not primary_core_phase:
-		on_start_next_round_timer_timeout() # modern problems, require modern solutions xD
-	primary_core_phase = false
-
-func _on_play_btn_pressed():
-	_on_restart_pressed()
-
+func _on_restart_pressed():
+	state.reset(self, true, true, true, true, true)
+	return get_tree().reload_current_scene()

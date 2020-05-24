@@ -28,9 +28,9 @@ Known bad setups:
 
 ## Building
 
-Requires Godot Engine.
-Can be build in Godot without any further setup.
-Tested with Godot 3.2.1 on Windows and Linux.
+* Requires Godot Engine.
+* Can be built in Godot without any further setup.
+* Tested with Godot 3.2.1 on Windows and Linux.
 
 ## Contact
 

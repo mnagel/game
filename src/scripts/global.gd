@@ -1,7 +1,8 @@
 extends Node
 
+var rng = RandomNumberGenerator.new()
+
 # Player's stuff
-var players = {}
 var available_colors = [
 	"red",
 	"green",
@@ -21,62 +22,47 @@ var available_colors = [
 	"tomato",
 	"yellowgreen"
 	]
-var highlighted = ""
 
-var rng = RandomNumberGenerator.new()
+var available_names = [
+	"Data",
+	"Plex",
+	"Opak", 
+	"Fiber",
+	"H3X", 
+	"BU4", 
+	"N34", 
+	"Beta", 
+	"Alpha",
+	"CC20",
+	"Otis",
+	"Tink",
+	"Otk", 
+	"Cori",
+	"Agxt", 
+	"Screw", 
+	"Cybel", 
+	"Spark", 
+	"Plier", 
+	"Oyz",
+	"Fooba"
+	]
 
-var current_round = 0
+# main game balancing
+const num_rounds = 4
+const stargfx_speed = 5
+const connection_maxlength = 50 # maximum distance between exploded stars
+const safezone_radius = 90  # minimum distance between the primary and secondary novas
+const stargfxs_count = 60
 
-# Buggle related stuff
-var buggle_speed = 5
-var connection_line_width = 7
-
-var margin = 5
+# cosmetics
+const connection_line_width = 7
+var sound = true
+var antialiasing = true
 
 # Viewport limits
 var min_limits = Vector2(10, 10)
 var max_limits = Vector2(440, 440)
-
-# Anti things xD
-var antialiasing = true
-
-# Sfx stuff
-var sound = true
-
-const connection_maxlength = 50 # maximum distance between slimed buggles
-const safezone_radius = 90  # minimum distance between the primary and secondary slimes
-
-func getPlayerByIndex(player_index):
-	if player_index >= 0 and player_index < players.size():
-		return global.players[global.players.keys()[player_index]]
-	else:
-		# Should never happen
-		push_error("Invalid index passed to getPlayerByIndex")
-		return null
-
-func getPlayerByIdentifier(player_identifier):
-	if player_identifier in global.players.keys():
-		return global.players[player_identifier]
-	else:
-		# Should never happen
-		push_error("Invalid identifier passed to getPlayerByIdentifier")
-		return
-
-func setPlayer(dict):
-	global.players[dict["identifier"]] = dict
-
-func rankPlayers():
-	var player_identifiers = players.keys()
-	player_identifiers.sort_custom(self, "comparePlayers")
-	return player_identifiers
-
-func comparePlayers(player_identifier_a, player_identifier_b):
-	return getPlayerByIdentifier(player_identifier_a)["total_score"] > getPlayerByIdentifier(player_identifier_b)["total_score"]
-
-var current_player_index = 0
-
-func isCurrentPlayerBot():
-	return getPlayerByIndex(current_player_index)["bot"]
+var margin = 5
 
 func getRandomPosition():
 	var rx = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
@@ -84,41 +70,7 @@ func getRandomPosition():
 	var pos = Vector2(rx, ry)
 	return pos
 
-var buggles_nodes = []
-var backup_buggles = []
-export (int) var buggles_count = 60
-var Buggle = preload('res://scenes/buggle.tscn')
-var slimecores = []
-
-func generateBuggles(scene):
-	buggles_nodes = []
-	for _i in range(0, buggles_count):
-		var instancedBuggle = Buggle.instance()
-		instancedBuggle.position = getRandomPosition()
-		instancedBuggle.get_node("donut-std-1").rotation_degrees = rng.randi_range(0, 360)
-		buggles_nodes.append(instancedBuggle)
-		scene.add_child(instancedBuggle)
-	return
-
-func resetBuggles():
-	for node in buggles_nodes:
-		node.reset()
-		backup_buggles.append(node)
-	for player in players.values():
-		player["score"] = 0
-	buggles_nodes = []
-
-func removeSlimes(scene):
-	for node in slimecores:
-		scene.remove_child(node)
-	slimecores = []
-
-func removeBackupBuggles(scene):
-	for node in global.backup_buggles:
-		scene.remove_child(node)
-	backup_buggles = []
-
-func resetScore():
-	for player in global.players.values():
-		player["total_score"] = 0
-		player["score"] = 0
+func getRandomSpeed():
+	var rny = global.rng.randf_range(-1.0, +1.0)
+	var rnx = global.rng.randf_range(-1.0, +1.0)
+	return Vector2(rnx, rny) * global.stargfx_speed

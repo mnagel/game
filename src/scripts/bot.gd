@@ -1,42 +1,41 @@
 extends Node
 
-# Random number generator
-var rng = global.rng
-
 func getBotLocationChoice(main, player_id):
 	if player_id != 0:
 		return getMnagelBotLocationChoice(main, player_id, player_id * 20 + 20)
 	else:
-		return getMidstPosition(global.buggles_nodes) + global.getRandomPosition() * rng.randf_range(0.2, 0.5)
+		return getMidstPosition(GameState.getAllStargfxs()) + global.getRandomPosition() * global.rng.randf_range(0.2, 0.5)
 
-func getMidstPosition(buggles_nodes):
+func getMidstPosition(stargfxs_nodes):
 	var pos = Vector2(0, 0)
-	for node in buggles_nodes:
+	for node in stargfxs_nodes:
 		pos += node.position
-	pos = pos / buggles_nodes.size()
+	pos = pos / stargfxs_nodes.size()
 	return pos
 
-func getMnagelBotLocationChoice(main, player_id, perc):	
+func getMnagelBotLocationChoice(main, player_id, perc):
+	var state = main.state
 	var best_score_1 = 0 # in connection reach
 	var best_score_2 = 0 # in safe reach
 	var best_score_3 = 0 # other
-	var best_node = global.buggles_nodes[0]
+	var all_stargfxs = GameState.getAllStargfxs()
+	var best_node = all_stargfxs[0]
 	
-	for pivot in global.buggles_nodes:
+	for pivot in all_stargfxs:
 		# only consider outside of safe zones
-		if not main.canPlaceCore(pivot.position):
+		if not main.canPlaceNova(pivot.position):
 			continue
 			
 		# we need some non-determinism to make multiple instances of the bot feasible
-		if rng.randi_range(0, 100) > perc:
+		if global.rng.randi_range(0, 100) > perc:
 			continue # disregard node for choice 
 		
 		var pivot_score_1 = 0
 		var pivot_score_2 = 0
 		var pivot_score_3 = 0
-		for other in global.buggles_nodes:
+		for other in all_stargfxs:
 			# we need some non-determinism to make multiple instances of the bot feasible
-			if rng.randi_range(0, 100) > perc:
+			if global.rng.randi_range(0, 100) > perc:
 				continue # disregard node for scoring 
 			
 			var distance = (pivot.position - other.position).length()
@@ -53,6 +52,6 @@ func getMnagelBotLocationChoice(main, player_id, perc):
 			best_node = pivot
 	
 	print("MNA bot (%d) acting for player %s, winning score %.1f+%.1f+%.1f"  
-	% [perc, global.getPlayerByIndex(player_id)["name"], best_score_1, best_score_2, best_score_3] 
+	% [perc, GameState.getCurrentPlayer(), best_score_1, best_score_2, best_score_3] 
 	)
 	return best_node.position

@@ -1,26 +1,26 @@
 extends Container
 
-var player_identifier = ""
+var State = enums.State
 
-func getPlayer():
-	return global.getPlayerByIdentifier(player_identifier)
-
+var player
 
 func _process(delta):
-	var score = getPlayer()["score"]
-	$full_round_progress.region_rect = Rect2(0, 0, float(160 * score / 60.0), 8)
-	$highlighted.visible = (global.highlighted == player_identifier)
+	$full_round_progress.region_rect = Rect2(0, 0, float(160 * player.score / 60.0), 8)
+	if GameState.state == State.allPick:
+		$highlighted.visible = (player == GameState.getCurrentPlayer())
+	else:
+		$highlighted.visible = false
 	update()
 
 
 func update():
-	$player_name.text = getPlayer()["name"]
-	$round_score.text = str("R", global.current_round, ": ", getPlayer()["score"])
-	$total_score.text = str(getPlayer()["total_score"])
+	$player_name.text = player.display_name
+	$round_score.text = str("R", GameState.round_number, ": ", player.score)
+	$total_score.text = str(player.total_score)
 
-	if getPlayer()["bot"]:
+	if player.bot:
 		$avatar.texture = load("res://assets/avatars/bot.png")
 	else:
 		$avatar.texture = load("res://assets/avatars/human.png")
-	$avatar.modulate = ColorN(getPlayer()["color"])
-	$bot.visible = getPlayer()["bot"]
+	$avatar.modulate = player.color
+	$bot.visible = player.bot
