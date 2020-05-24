@@ -2,10 +2,11 @@ extends Node2D
 
 var state = GameState
 var State = enums.State
+var Startype = enums.Startype
 
-# Buggles movement
-var buggle = preload("res://scenes/buggle.tscn")
-var slimecore = preload("res://scenes/slimecore.tscn")
+# Stargfxs movement
+var stargfx = preload("res://scenes/stargfx.tscn")
+var nova = preload("res://scenes/nova.tscn")
 
 var player_status = preload("res://scenes/player_status.tscn")
 
@@ -86,10 +87,10 @@ func transition(from, to):
 				player["total_score"] += player["score"]
 				player["score"] = 0
 			# Clean
-			state.killBuggles(self)
-			state.removeSlimes(self)
+			state.killStargfxs(self)
+			state.removeNovas(self)
 			# Build round
-			state.generateBuggles(self)
+			state.generateStargfxs(self)
 	
 			start_timer.start()
 			round_anim_label.text = "UNIVERSE " + str(state.round_number)
@@ -106,7 +107,7 @@ func transition(from, to):
 			getOnePick()
 		State.explosions:
 			get_tree().paused = false
-			state.reset_buggles()
+			state.reset_stargfxs()
 			for player in GameState.getAllPlayers():
 				player.score = 0
 			showMessage("Watching the universe explode", true)
@@ -130,10 +131,10 @@ func transition(from, to):
 
 func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
-	for slime in state.slimecores:
-		if allPick_novaindex > 0 and slime.primary: # FIXME check existing nova generation vs nova generation being placed
-			var slimes_distance = slime.position - position
-			if slimes_distance.length() <= global.safezone_radius:
+	for nova in state.novas:
+		if allPick_novaindex > 0 and nova.primary: # FIXME check existing nova generation vs nova generation being placed
+			var distance = nova.position - position
+			if distance.length() <= global.safezone_radius:
 				return false
 		else:
 			# secondary cores may be closeby, because their position is not known to the player
@@ -150,13 +151,13 @@ func tryPutCore(position):
 	if global.sound:
 		sfx.play()
 		
-	var instancedSlime = slimecore.instance()
-	instancedSlime.player = GameState.getCurrentPlayer()
-	instancedSlime.set_safe_zone(global.safezone_radius)
-	instancedSlime.primary = allPick_novaindex == 0
-	instancedSlime.position = position
-	state.slimecores.append(instancedSlime)
-	add_child(instancedSlime)
+	var mynova = nova.instance()
+	mynova.player = GameState.getCurrentPlayer()
+	mynova.set_safe_zone(global.safezone_radius)
+	mynova.primary = allPick_novaindex == 0
+	mynova.position = position
+	state.novas.append(mynova)
+	add_child(mynova)
 	
 	playerDone()
 	return true
@@ -172,7 +173,7 @@ func showMessage(msg, clear = false):
 
 func allStarsExploded(stars):
 	for star in stars:
-		if star.type == "buggle":
+		if star.type == Startype.star:
 			return false
 	return true
 
@@ -180,7 +181,7 @@ func allStarsExploded(stars):
 # repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
 	if state.state == State.explosions:
-		if allStarsExploded(GameState.buggles_root.get_children()):
+		if allStarsExploded(GameState.stargfxs_root.get_children()):
 			if allPick_novaindex == 2:
 				transition(State.explosions, State.afterExplosions)
 			else:

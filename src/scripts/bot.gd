@@ -4,13 +4,13 @@ func getBotLocationChoice(main, player_id):
 	if player_id != 0:
 		return getMnagelBotLocationChoice(main, player_id, player_id * 20 + 20)
 	else:
-		return getMidstPosition(GameState.buggles_root.get_children()) + global.getRandomPosition() * global.rng.randf_range(0.2, 0.5)
+		return getMidstPosition(GameState.stargfxs_root.get_children()) + global.getRandomPosition() * global.rng.randf_range(0.2, 0.5)
 
-func getMidstPosition(buggles_nodes):
+func getMidstPosition(stargfxs_nodes):
 	var pos = Vector2(0, 0)
-	for node in buggles_nodes:
+	for node in stargfxs_nodes:
 		pos += node.position
-	pos = pos / buggles_nodes.size()
+	pos = pos / stargfxs_nodes.size()
 	return pos
 
 func getMnagelBotLocationChoice(main, player_id, perc):
@@ -18,9 +18,9 @@ func getMnagelBotLocationChoice(main, player_id, perc):
 	var best_score_1 = 0 # in connection reach
 	var best_score_2 = 0 # in safe reach
 	var best_score_3 = 0 # other
-	var best_node = GameState.buggles_root.get_children()[0]
+	var best_node = GameState.stargfxs_root.get_children()[0]
 	
-	for pivot in GameState.buggles_root.get_children():
+	for pivot in GameState.stargfxs_root.get_children():
 		# only consider outside of safe zones
 		if not main.canPlaceCore(pivot.position):
 			continue
@@ -32,7 +32,7 @@ func getMnagelBotLocationChoice(main, player_id, perc):
 		var pivot_score_1 = 0
 		var pivot_score_2 = 0
 		var pivot_score_3 = 0
-		for other in GameState.buggles_root.get_children():
+		for other in GameState.stargfxs_root.get_children():
 			# we need some non-determinism to make multiple instances of the bot feasible
 			if global.rng.randi_range(0, 100) > perc:
 				continue # disregard node for scoring 

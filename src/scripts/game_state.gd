@@ -3,9 +3,6 @@ extends Node
 #var players = []  # TODO: reactivate
 var round_number = 0
 
-# Player ID -> [nova]
-var novas = {}
-
 const freefly_timeout = 5
 const turn_timeout = 15
 const after_explosions_timeout = 7
@@ -130,7 +127,7 @@ signal on_client_state_changed(state)
 #			# Do nothing
 #			pass
 #		State.freefly:
-#			# Let the buggles fly.
+#			# Let the stargfxs fly.
 #			# TODO: Make we need lockstep synchronization.
 #			pass
 #		State.allpick:
@@ -151,45 +148,45 @@ remotesync func client_state(state):
 
 
 
-var slimecores = []
+var novas = []
 
 var Star = preload('res://scenes/star.tscn')
-var Buggle = preload('res://scenes/buggle.tscn')
+var Stargfx = preload('res://scenes/stargfx.tscn')
 
-onready var buggles_root = Node.new()
+onready var stargfxs_root = Node.new()
 
-func reset_buggles():
-	for buggle in buggles_root.get_children():
-		buggle.reset(self)
+func reset_stargfxs():
+	for stargfx in stargfxs_root.get_children():
+		stargfx.reset(self)
 
-func generateBuggles(scene):
-	buggles_root = Node.new()
-	scene.add_child(buggles_root)
-	for _i in range(0, global.buggles_count):
+func generateStargfxs(scene):
+	stargfxs_root = Node.new()
+	scene.add_child(stargfxs_root)
+	for _i in range(0, global.stargfxs_count):
 		var star = Star.instance()
 		star.set_name(String(_i))
 		star.init(global.getRandomPosition(), global.getRandomSpeed())
 		stars.add_child(star)
-		var instancedBuggle = Buggle.instance()
-		instancedBuggle.set_name(String(_i))
-		instancedBuggle.init(star)
-		instancedBuggle.get_node("donut-std-1").rotation_degrees = global.rng.randi_range(0, 360)
-		buggles_root.add_child(instancedBuggle)
+		var instancedStargfx = Stargfx.instance()
+		instancedStargfx.set_name(String(_i))
+		instancedStargfx.init(star)
+		instancedStargfx.get_node("donut-std-1").rotation_degrees = global.rng.randi_range(0, 360)
+		stargfxs_root.add_child(instancedStargfx)
 
 func killState(scene):
-	killBuggles(scene)
-	removeSlimes(scene)
+	killStargfxs(scene)
+	removeNovas(scene)
 	resetScore()
 
-func killBuggles(scene):
-	for buggle in buggles_root.get_children():
-		buggles_root.remove_child(buggle)
-	scene.remove_child(buggles_root)
+func killStargfxs(scene):
+	for stargfx in stargfxs_root.get_children():
+		stargfxs_root.remove_child(stargfx)
+	scene.remove_child(stargfxs_root)
 
-func removeSlimes(scene):
-	for node in slimecores:
+func removeNovas(scene):
+	for node in novas:
 		scene.remove_child(node)
-	slimecores = []
+	novas = []
 
 func resetScore():
 	for player in GameState.getAllPlayers():

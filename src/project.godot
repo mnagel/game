@@ -23,7 +23,7 @@ _global_script_class_icons={
 config/name="SuperNeoNova"
 run/main_scene="res://entry/entry.tscn"
 run/low_processor_mode=true
-config/icon="res://assets/buggle.png"
+config/icon="res://assets/stargfx.png"
 
 [autoload]
 

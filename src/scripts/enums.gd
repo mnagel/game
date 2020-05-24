@@ -8,3 +8,9 @@ enum State {
 	explosions,
 	afterExplosions,
 }
+
+enum Startype {
+	nova,
+	star,
+	explodedstar
+}

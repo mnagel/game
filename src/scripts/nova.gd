@@ -1,6 +1,8 @@
 extends Area2D
 
-var type = "nova"
+var Startype = enums.Startype
+
+var type = Startype.nova
 var primary = true
 var player = null
 var distance = 0

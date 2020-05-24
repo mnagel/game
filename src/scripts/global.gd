@@ -47,10 +47,10 @@ var available_names = [
 
 var rng = RandomNumberGenerator.new()
 
-# Buggle related stuff
-var buggle_speed = 5
+# Stargfx related stuff
+var stargfx_speed = 5
 var connection_line_width = 7
-export (int) var buggles_count = 60
+export (int) var stargfxs_count = 60
 
 var margin = 5
 
@@ -66,8 +66,8 @@ var sound = true
 
 # Rounds 
 const num_rounds = 1
-const connection_maxlength = 50 # maximum distance between slimed buggles
-const safezone_radius = 90  # minimum distance between the primary and secondary slimes
+const connection_maxlength = 50 # maximum distance between exploded stars
+const safezone_radius = 90  # minimum distance between the primary and secondary novas
 
 
 func getRandomPosition():
@@ -79,4 +79,4 @@ func getRandomPosition():
 func getRandomSpeed():
 	var rny = global.rng.randf_range(-1.0, +1.0)
 	var rnx = global.rng.randf_range(-1.0, +1.0)
-	return Vector2(rnx, rny) * global.buggle_speed
+	return Vector2(rnx, rny) * global.stargfx_speed

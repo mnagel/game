@@ -1,15 +1,16 @@
 extends Area2D
 
 var State = enums.State
+var Startype = enums.Startype
 
 var star = null
 
-var type = "buggle" # there are three types: nova, buggle, slimed-buggle
+var type = Startype.star
 var color = null
 var player = null
 var speed = Vector2(0, 0)
 var parent = null  # star/nova one hop towards the nova
-var distance = 0 # distance between this buggle and the core, in "hops"
+var distance = 0 # distance between this stargfx and the core, in "hops"
 var connection = null # star/nova one hop towards the nova
 
 # Viewport limits
@@ -24,7 +25,7 @@ onready var explosion = $explosion
 
 # collision detection for the sliming
 func on_area_entered(who):
-	if self.type != "buggle":
+	if self.type != Startype.star:
 		print("This should never happen :) exploding things that should not explode: %s by %s" % [self.type, who.type])
 		return # do not connect things that should not be connected...
 		pass
@@ -34,8 +35,8 @@ func on_area_entered(who):
 	
 	# get all candidate areas
 	var candidates = []
-	for area in GameState.buggles_root.get_children() + GameState.slimecores: # FIXME why is overlapping areas not enough here...
-		if area.type == "nova" or area.type == "slimed-buggle":
+	for area in GameState.stargfxs_root.get_children() + GameState.novas: # FIXME why is overlapping areas not enough here...
+		if area.type == Startype.nova or area.type == Startype.explodedstar:
 			candidates.append(area)
 	if candidates.empty():
 		return
@@ -54,14 +55,14 @@ func on_area_entered(who):
 		distance = parent.distance + 1
 		
 		# set some own stats
-		type = "slimed-buggle"
+		type = Startype.explodedstar
 
 		if self.connection != null:
 			print("chaos")
 		self.connection = Line2D.new()
 		# the position of parent
 		connection.add_point(parent.position - position)  
-		# this buggles's position
+		# this stargfxs's position
 		connection.add_point(Vector2(0, 0))  
 		connection.default_color = player.color
 		connection.antialiased = global.antialiasing
@@ -70,7 +71,7 @@ func on_area_entered(who):
 		self.add_child(connection)
 		print("added connection %s %s" % [self, connection])
 
-		# Buggle outline
+		# Stargfx outline
 		donut.visible = true
 		donut.modulate = color
 		
@@ -93,13 +94,13 @@ func reset(scene):
 		self.remove_child(connection)
 		connection.queue_free()
 		connection = null # star/nova one hop towards the nova
-	type = "buggle" # there are three types: nova, buggle, slimed-buggle
+	type = Startype.star
 	player = null
 	color = null
 	position = star.position
 	speed = star.velocity
 	parent = null  # star/nova one hop towards the nova
-	distance = 0 # distance between this buggle and the core, in "hops"
+	distance = 0 # distance between this stargfx and the core, in "hops"
 	
 	donut.visible = false
 
@@ -117,8 +118,8 @@ func _ready():
 	explosion.process_material.color_ramp.gradient = explosion.process_material.color_ramp.gradient.duplicate()
 
 func _physics_process(delta):
-	# check if moving individually, and as all buggles
-	if type == "buggle":
+	# check if moving individually, and as all stargfxs
+	if type == Startype.star:
 		if (position.x <= min_limits.x + margin) or (position.x >= max_limits.x - margin):
 			speed.x = -speed.x
 		if position.y <= min_limits.y + margin or position.y >= max_limits.y - margin:
