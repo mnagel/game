@@ -84,15 +84,10 @@ func transition(from, to):
 			allPick_novaindex = 0
 			state.round_number += 1
 			round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
-			# Save score to variable
-			for player in GameState.getAllPlayers():
-				player["total_score"] += player["score"]
-				player["score"] = 0
-			# Clean
-			state.killStargfxs(self)
-			state.removeNovas(self)
-			# Build round
-			state.generateStargfxs(self)
+
+			#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
+			state.reset(self, true, true, true, true, true)
+			state.generateStars(self)
 	
 			start_timer.start()
 			round_anim_label.text = "UNIVERSE " + str(state.round_number)
@@ -109,12 +104,13 @@ func transition(from, to):
 			getOnePick()
 		State.explosions:
 			get_tree().paused = false
-			state.reset_stargfxs()
-			for player in GameState.getAllPlayers():
-				player.score = 0
+			#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
+			state.reset(self, true, false, true, false, false)
 			showMessage("Watching the universe explode", true)
 		State.afterExplosions:
 			showMessage("Reflect upon your actions.", true)
+			for player in GameState.getAllPlayers():
+				player["total_score"] += player["score"]
 			start_next_round_timer.start()
 		State.gameOver:
 			if global.sound:
@@ -231,18 +227,16 @@ func on_start_timer_timeout():
 
 func on_start_next_round_timer_timeout():
 	if state.round_number < global.num_rounds:
-			transition(State.afterExplosions, State.freefly)
+		transition(State.afterExplosions, State.freefly)
 	else:
-		for player in GameState.getAllPlayers():
-			player["total_score"] += player["score"]
-			player["score"] = 0  # Reset round score
 		transition(State.afterExplosions, State.gameOver)
 
 func on_player_timer_timeout():
 	playerDone() # consider this player done
 
 func _on_exit_pressed():
-	GameState.killState(self)
+	#func reset(scene, roundScore, totalScore, resetStars, removeStars, novas):
+	state.reset(self, true, true, true, true, true)
 	return get_tree().change_scene_to(load("res://scenes/player-menu.tscn"))
 
 func _on_sound_pressed():
@@ -253,5 +247,5 @@ func _on_sound_pressed():
 		sound_btn.text = "SOUND:OFF"
 
 func _on_restart_pressed():
-	GameState.killState(self)
+	state.reset(self, true, true, true, true, true)
 	return get_tree().reload_current_scene()

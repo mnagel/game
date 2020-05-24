@@ -1,16 +1,27 @@
 extends Node
 
-#var players = []  # TODO: reactivate
-var round_number = 0
-
-const freefly_timeout = 5
-const turn_timeout = 15
-const after_explosions_timeout = 7
+var State = enums.State
 
 const has_network = false
 
 onready var players = Node.new()
 onready var stars = Node.new()
+onready var stargfxs_root = Node.new()
+var novas = []
+
+var round_number = 0
+var currentPlayerIndex = 0
+
+
+var Player = preload('res://scenes/player.tscn')
+var Star = preload('res://scenes/star.tscn')
+var Stargfx = preload('res://scenes/stargfx.tscn')
+
+# vvv TODO: move to global
+const freefly_timeout = 5
+const turn_timeout = 15
+const after_explosions_timeout = 7
+# ^^^ TODO: move to global
 
 func _ready():
 	players.set_name("players")
@@ -54,7 +65,6 @@ func sync_picks():
 #  - Increment round by one, goto round start
 #  - End game, game over state
 
-var State = enums.State
 
 func StateToString(s):
 	match s:
@@ -144,65 +154,48 @@ remotesync func client_state(state):
 	if state != State.idle:
 		emit_signal('on_client_state_changed', state)
 
-
-
-
-
-var novas = []
-
-var Star = preload('res://scenes/star.tscn')
-var Stargfx = preload('res://scenes/stargfx.tscn')
-
-onready var stargfxs_root = Node.new()
-
-func reset_stargfxs():
-	for stargfx in stargfxs_root.get_children():
-		stargfx.reset(self)
-
-func generateStargfxs(scene):
+func generateStars(scene):
 	stargfxs_root = Node.new()
 	scene.add_child(stargfxs_root)
-	for _i in range(0, global.stargfxs_count):
+	for i in range(0, global.stargfxs_count):
 		var star = Star.instance()
-		star.set_name(String(_i))
+		star.set_name(str(i))
 		star.init(global.getRandomPosition(), global.getRandomSpeed())
 		stars.add_child(star)
 		var instancedStargfx = Stargfx.instance()
-		instancedStargfx.set_name(String(_i))
+		instancedStargfx.set_name(str(i))
 		instancedStargfx.init(star)
 		instancedStargfx.get_node("donut-std-1").rotation_degrees = global.rng.randi_range(0, 360)
 		stargfxs_root.add_child(instancedStargfx)
 
-func getAllStargfxs():
-	return stargfxs_root.get_children()
 
-func killState(scene):
-	killStargfxs(scene)
-	removeNovas(scene)
-	resetScore()
-
-func killStargfxs(scene):
-	for stargfx in stargfxs_root.get_children():
-		stargfx.queue_free()
-	scene.remove_child(stargfxs_root)
-	for star in stars.get_children():
-		star.queue_free()
-
-func removeNovas(scene):
-	for nova in novas:
-		nova.queue_free()
-	novas = []
-
-func resetScore():
-	for player in GameState.getAllPlayers():
-		player.total_score = 0
-		player.score = 0
-		if has_network:
+func reset(scene, roundScore, totalScore, resetStars, removeStars, removeNovas):
+	if roundScore:
+		for player in GameState.getAllPlayers():
+			player.score = 0
+	if totalScore:
+		for player in GameState.getAllPlayers():
+			player.total_score = 0
+	if has_network:
+		for player in GameState.getAllPlayers():
 			player.update_player()
+	if resetStars:
+		for stargfx in stargfxs_root.get_children():
+			stargfx.reset(self)
+	if removeStars:
+		for stargfx in stargfxs_root.get_children():
+			stargfx.queue_free()
+		scene.remove_child(stargfxs_root)
+		for star in stars.get_children():
+			star.queue_free()
+	if removeNovas:
+		for nova in novas:
+			nova.queue_free()
+		novas = []
 
+func getAllStargfxs():
+	return stargfxs_root.get_children()	
 
-var Player = preload('res://scenes/player.tscn')
-var currentPlayerIndex = 0
 
 func playerDone():
 	currentPlayerIndex += 1
