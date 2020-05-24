@@ -2,7 +2,7 @@ extends Control
 
 
 # Player node
-var Player = preload("res://scenes/player.tscn")
+var Player = preload("res://scenes/player_panel.tscn")
 
 # Nodes
 onready var players_container = $scroll/container
