@@ -78,7 +78,7 @@ func _on_player_name_text_changed(new_text):
 
 func _on_remove_pressed():
 	# Erase player
-	global.players.erase(color)
+	GameState.players.erase(color)
 	
 	# Return color to global available colors
 	if color in global.available_colors:
