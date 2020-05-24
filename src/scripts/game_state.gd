@@ -182,6 +182,8 @@ func killStargfxs(scene):
 	for stargfx in stargfxs_root.get_children():
 		stargfxs_root.remove_child(stargfx)
 	scene.remove_child(stargfxs_root)
+	for star in stars.get_children():
+		stars.remove_child(star)
 
 func removeNovas(scene):
 	for node in novas:
