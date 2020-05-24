@@ -182,7 +182,7 @@ func allStarsExploded(stars):
 # repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
 	if state.state == State.explosions:
-		if allStarsExploded(GameState.stargfxs_root.get_children()):
+		if allStarsExploded(GameState.getAllStargfxs()):
 			if allPick_novaindex == 2:
 				transition(State.explosions, State.afterExplosions)
 			else:

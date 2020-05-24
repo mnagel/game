@@ -173,6 +173,9 @@ func generateStargfxs(scene):
 		instancedStargfx.get_node("donut-std-1").rotation_degrees = global.rng.randi_range(0, 360)
 		stargfxs_root.add_child(instancedStargfx)
 
+func getAllStargfxs():
+	return stargfxs_root.get_children()
+
 func killState(scene):
 	killStargfxs(scene)
 	removeNovas(scene)

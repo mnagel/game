@@ -35,7 +35,7 @@ func on_area_entered(who):
 	
 	# get all candidate areas
 	var candidates = []
-	for area in GameState.stargfxs_root.get_children() + GameState.novas: # FIXME why is overlapping areas not enough here...
+	for area in GameState.getAllStargfxs() + GameState.novas: # FIXME why is overlapping areas not enough here...
 		if area.type == Startype.nova or area.type == Startype.explodedstar:
 			candidates.append(area)
 	if candidates.empty():
