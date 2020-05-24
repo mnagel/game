@@ -189,8 +189,8 @@ func killStargfxs(scene):
 		star.queue_free()
 
 func removeNovas(scene):
-	for node in novas:
-		scene.remove_child(node)
+	for nova in novas:
+		nova.queue_free()
 	novas = []
 
 func resetScore():
@@ -235,5 +235,5 @@ func addPlayer():
 	return player
 	
 func delPlayer(player):
-	players.remove_child(player)
+	player.queue_free()
 	sync_players()
