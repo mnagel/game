@@ -167,9 +167,11 @@ func generateBuggles(scene):
 	scene.add_child(buggles_root)
 	for _i in range(0, global.buggles_count):
 		var star = Star.instance()
+		star.set_name(String(_i))
 		star.init(global.getRandomPosition(), global.getRandomSpeed())
 		stars.add_child(star)
 		var instancedBuggle = Buggle.instance()
+		instancedBuggle.set_name(String(_i))
 		instancedBuggle.init(star)
 		instancedBuggle.get_node("donut-std-1").rotation_degrees = global.rng.randi_range(0, 360)
 		buggles_root.add_child(instancedBuggle)
