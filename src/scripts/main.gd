@@ -58,7 +58,7 @@ func getOnePick():
 	# handle the transitioned-to player
 	if isCurrentPlayerBot():
 		while true:
-			if tryPutCore(Bot.getBotLocationChoice(self, allPick_playerindex)):
+			if tryPutNova(Bot.getBotLocationChoice(self, allPick_playerindex)):
 				break
 			else:
 				# position was illegal. try again
@@ -130,25 +130,25 @@ func transition(from, to):
 				player_ranking_ui.add_child(ps)
 			set_process(false)
 
-func canPlaceCore(position):
-	# secondary cores need to stay away from primary cores
+func canPlaceNova(position):
+	# secondary novas need to stay away from primary novas
 	for nova in state.novas:
 		if allPick_novaindex > 0 and nova.primary: # FIXME check existing nova generation vs nova generation being placed
 			var distance = nova.position - position
 			if distance.length() <= global.safezone_radius:
 				return false
 		else:
-			# secondary cores may be closeby, because their position is not known to the player
+			# secondary novas may be closeby, because their position is not known to the player
 			continue
 	return true
 
 
 # Functions
-func tryPutCore(position):
-	if not canPlaceCore(position):
+func tryPutNova(position):
+	if not canPlaceNova(position):
 		return false
 
-	# core can actually be put here
+	# nova can actually be put here
 	if global.sound:
 		sfx.play()
 		
@@ -205,7 +205,7 @@ func _input(event):
 				or mouse_pos.y > global.max_limits.y ):
 				return
 				
-			if not tryPutCore(mouse_pos):
+			if not tryPutNova(mouse_pos):
 				warnPlayer()
 				showMessage("Supernova overload. Explode elsewhere!\n", true)
 

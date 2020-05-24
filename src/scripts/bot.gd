@@ -22,7 +22,7 @@ func getMnagelBotLocationChoice(main, player_id, perc):
 	
 	for pivot in GameState.stargfxs_root.get_children():
 		# only consider outside of safe zones
-		if not main.canPlaceCore(pivot.position):
+		if not main.canPlaceNova(pivot.position):
 			continue
 			
 		# we need some non-determinism to make multiple instances of the bot feasible

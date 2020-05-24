@@ -10,7 +10,7 @@ var color = null
 var player = null
 var speed = Vector2(0, 0)
 var parent = null  # star/nova one hop towards the nova
-var distance = 0 # distance between this stargfx and the core, in "hops"
+var distance = 0 # distance between this stargfx and the nova, in "hops"
 var connection = null # star/nova one hop towards the nova
 
 # Viewport limits
@@ -100,7 +100,7 @@ func reset(scene):
 	position = star.position
 	speed = star.velocity
 	parent = null  # star/nova one hop towards the nova
-	distance = 0 # distance between this stargfx and the core, in "hops"
+	distance = 0 # distance between this star and the nova, in "hops"
 	
 	donut.visible = false
 
