@@ -83,6 +83,7 @@ func transition(from, to):
 			allPick_playerindex = 0
 			allPick_novaindex = 0
 			state.round_number += 1
+			round_label.text = str(state.round_number) + "/" + str(global.num_rounds)
 			# Save score to variable
 			for player in GameState.getAllPlayers():
 				player["total_score"] += player["score"]
