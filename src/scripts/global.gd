@@ -65,7 +65,7 @@ var antialiasing = true
 var sound = true
 
 # Rounds 
-const num_rounds = 1
+const num_rounds = 2
 const connection_maxlength = 50 # maximum distance between slimed buggles
 const safezone_radius = 90  # minimum distance between the primary and secondary slimes
 
