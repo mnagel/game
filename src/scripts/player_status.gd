@@ -1,10 +1,15 @@
 extends Container
 
+var State = enums.State
+
 var player
 
 func _process(delta):
 	$full_round_progress.region_rect = Rect2(0, 0, float(160 * player.score / 60.0), 8)
-	$highlighted.visible = (player == GameState.getCurrentPlayer())
+	if GameState.state == State.allPick:
+		$highlighted.visible = (player == GameState.getCurrentPlayer())
+	else:
+		$highlighted.visible = false
 	update()
 
 
