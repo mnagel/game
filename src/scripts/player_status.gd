@@ -9,7 +9,7 @@ func _process(delta):
 
 
 func update():
-	$player_name.text = player.name
+	$player_name.text = player.display_name
 	$round_score.text = str("R", GameState.round_number, ": ", player.score)
 	$total_score.text = str(player.total_score)
 

@@ -21,7 +21,7 @@ func _ready():
 func sync_players():
 	# Iterate over all players and send their object state
 	# TODO: Initial state
-	for player in players:
+	for player in players.get_children():
 		player.update_player()
 
 func sync_stars():
@@ -188,6 +188,7 @@ func resetScore():
 	for player in GameState.getAllPlayers():
 		player.total_score = 0
 		player.score = 0
+		player.update_player()
 
 
 var Player = preload('res://scenes/player.tscn')
@@ -217,10 +218,12 @@ func byScore(p1, p2):
 
 func addPlayer():
 	var player = Player.instance()
-	player.name = global.available_names[global.rng.randi() % global.available_names.size()]
+	player.display_name = global.available_names[global.rng.randi() % global.available_names.size()]
 	player.color = ColorN(global.available_colors[global.rng.randi() % global.available_colors.size()])
 	players.add_child(player)
+	sync_players()
 	return player
 	
 func delPlayer(player):
 	players.remove_child(player)
+	sync_players()

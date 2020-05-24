@@ -121,8 +121,8 @@ func transition(from, to):
 				game_over_sfx.play()
 				
 			var ranked_players = GameState.getPlayersByScore()
-			winner_label.text = ranked_players[0].name + " is the most shiny!"
-			showMessage(ranked_players[0].name + " is the most shiny!")
+			winner_label.text = ranked_players[0].display_name + " is the most shiny!"
+			showMessage(ranked_players[0].display_name + " is the most shiny!")
 			game_over_popup.popup()
 			for player in ranked_players:
 				var ps = player_status.instance()
@@ -217,8 +217,6 @@ func _ready():
 	state.round_number = 0
 
 	for player in GameState.getAllPlayers():
-		print(player)
-		print(player.name)
 		var myPlayerPanel = player_status.instance()
 		myPlayerPanel.player = player
 		players_board.add_child(myPlayerPanel)

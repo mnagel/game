@@ -3,7 +3,7 @@ extends Control
 var player # the backing player
 
 func update():
-	$player_name.text = player.name
+	$player_name.text = player.display_name
 	$bot.pressed = player.bot
 	
 	if player.bot:
