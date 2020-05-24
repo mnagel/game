@@ -20,7 +20,30 @@ var available_colors = [
 	"tomato",
 	"yellowgreen"
 	]
-var highlighted = ""
+
+var available_names = [
+	"Data",
+	"Plex",
+	"Opak", 
+	"Fiber",
+	"H3X", 
+	"BU4", 
+	"N34", 
+	"Beta", 
+	"Alpha",
+	"CC20",
+	"Otis",
+	"Tink",
+	"Otk", 
+	"Cori",
+	"Agxt", 
+	"Screw", 
+	"Cybel", 
+	"Spark", 
+	"Plier", 
+	"Oyz",
+	"Fooba"
+	]
 
 var rng = RandomNumberGenerator.new()
 

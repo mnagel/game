@@ -3,8 +3,8 @@ extends Area2D
 var State = enums.State
 
 var type = "buggle" # there are three types: nova, buggle, slimed-buggle
-var player_identifier = ""
 var color = null
+var player = null
 var speed = Vector2(0, 0)
 var orig_position = null
 var orig_speed = null
@@ -52,9 +52,9 @@ func on_area_entered(who):
 	if (best.position - position).length() < global.connection_maxlength:
 		# connect to best
 		parent = best
-		color = parent.color
+		player = parent.player
+		color = player.color
 		distance = parent.distance + 1
-		player_identifier = parent.player_identifier
 		
 		# set some own stats
 		type = "slimed-buggle"
@@ -66,7 +66,7 @@ func on_area_entered(who):
 		connection.add_point(parent.position - position)  
 		# this buggles's position
 		connection.add_point(Vector2(0, 0))  
-		connection.default_color = parent.color
+		connection.default_color = player.color
 		connection.antialiased = global.antialiasing
 		connection.width = 100 / (distance + 10)
 		connection.z_index = -1
@@ -88,7 +88,7 @@ func on_area_entered(who):
 			sfx.play()
 		
 		# Scores
-		GameState.getPlayerByIdentifier(player_identifier)["score"] += 1
+		player.score += 1
 
 func reset(scene):
 	if self.connection != null:
@@ -97,7 +97,7 @@ func reset(scene):
 		connection.queue_free()
 		connection = null # star/nova one hop towards the nova
 	type = "buggle" # there are three types: nova, buggle, slimed-buggle
-	player_identifier = ""
+	player = null
 	color = null
 	speed = orig_speed
 	position = orig_position

@@ -179,37 +179,38 @@ func removeSlimes(scene):
 	slimecores = []
 
 func resetScore():
-	for player in GameState.players.values():
-		player["total_score"] = 0
-		player["score"] = 0
+	for player in GameState.getAllPlayers():
+		player.total_score = 0
+		player.score = 0
 
 
-var players = {}
+var Player = preload('res://scenes/player.tscn')
+var players = []
+var currentPlayerIndex = 0
 
-func getPlayerByIndex(player_index):
-	if player_index >= 0 and player_index < players.size():
-		return players[players.keys()[player_index]]
-	else:
-		# Should never happen
-		push_error("Invalid index passed to getPlayerByIndex")
-		return null
+func playerDone():
+	currentPlayerIndex += 1
+	if currentPlayerIndex == len(players):
+		currentPlayerIndex = 0
 
-func getPlayerByIdentifier(player_identifier):
-	if player_identifier in players.keys():
-		return GameState.players[player_identifier]
-	else:
-		# Should never happen
-		push_error("Invalid identifier passed to getPlayerByIdentifier")
-		return
+func getCurrentPlayer():
+	return players[currentPlayerIndex]
 
-func setPlayer(dict):
-	GameState.players[dict["identifier"]] = dict
+func getAllPlayers():
+	return players
+	
+func getPlayersByScore():
+	var ps = getAllPlayers()
+	ps.sort_custom(self, "byScore")
+	return ps 
 
-func rankPlayers():
-	var player_identifiers = players.keys()
-	player_identifiers.sort_custom(self, "comparePlayers")
-	return player_identifiers
+func byScore(p1, p2):
+	return p1.total_score > p2.total_score
 
-func comparePlayers(player_identifier_a, player_identifier_b):
-	return getPlayerByIdentifier(player_identifier_a)["total_score"] > getPlayerByIdentifier(player_identifier_b)["total_score"]
-
+func addPlayer():
+	var instancedPlayer = Player.instance()
+	instancedPlayer.name = global.available_names[global.rng.randi() % global.available_names.size()]
+	instancedPlayer.color = ColorN(global.available_colors[global.rng.randi() % global.available_colors.size()])
+	
+	players += [instancedPlayer]
+	return instancedPlayer
