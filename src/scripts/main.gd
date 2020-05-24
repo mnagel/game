@@ -22,7 +22,6 @@ var num_rounds = 4
 # Timers
 onready var start_timer = $start_timer
 onready var start_next_round_timer = $start_next_round_timer
-onready var bot_thinking = $bot_thinking
 onready var player_timer = $player_timer
 
 # Other Nodes
@@ -61,7 +60,7 @@ onready var game_over_sfx = $game_over_sfx
 # Random number generator
 var rng = global.rng
 
-func handleNovaPlacement():
+func playerDone():
 	# handle the transitioned-from player
 	allPick_playerindex += 1
 
@@ -75,18 +74,20 @@ func handleNovaPlacement():
 		allPick_playerindex = 0
 		transition(State.allPick, State.explosions)
 	else:
-		allPickLoop()
+		getOnePick()
 
-func allPickLoop():
+func getOnePick():
 	# handle the transitioned-to player
-	player_timer.start()
 	global.highlighted = global.getPlayerByIndex(allPick_playerindex)["identifier"]
 	if isCurrentPlayerBot():
-		showMessage("[Bot] Thinking ...")
-		var bot_think_delay = rng.randf_range(0.6, 1.8)
-		bot_think_delay = 0 # slow thinking sucks
-		bot_thinking.start(bot_think_delay)
+		while true:
+			if tryPutCore(Bot.getBotLocationChoice(self, allPick_playerindex)):
+				break
+			else:
+				# position was illegal. try again
+				continue
 	else:
+		player_timer.start()
 		showMessage("Place your supernova")
 
 func transition(from, to):
@@ -126,7 +127,7 @@ func transition(from, to):
 				round_sfx.play()
 		State.allPick:
 			get_tree().paused = true
-			allPickLoop()
+			getOnePick()
 		State.explosions:
 			global.reset_buggles()
 			get_tree().paused = false
@@ -180,7 +181,7 @@ func tryPutCore(position):
 	global.slimecores.append(instancedSlime)
 	add_child(instancedSlime)
 	
-	handleNovaPlacement()
+	playerDone()
 	return true
 
 func warnPlayer(): # Warn the player visually
@@ -257,18 +258,8 @@ func on_start_next_round_timer_timeout():
 			player["score"] = 0  # Reset round score
 		transition(State.afterExplosions, State.gameOver)
 
-func on_bot_thinking_timeout():
-	while true:
-		print("on_bot_thinking_timeout while")
-		if tryPutCore(Bot.getBotLocationChoice(self, allPick_playerindex)):
-			break
-		else:
-			# position was illegal. try again
-			continue
-	player_timer.stop()
-
 func on_player_timer_timeout():
-	handleNovaPlacement() # consider this player done
+	playerDone() # consider this player done
 
 func _on_exit_pressed():
 	global.killState(self)
