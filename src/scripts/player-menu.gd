@@ -1,6 +1,5 @@
 extends Control
 
-# Player node
 var PlayerPanel = preload("res://scenes/player_panel.tscn")
 
 # Nodes
@@ -20,8 +19,11 @@ func _ready():
 		players_container.add_child(myPlayerPanel)
 		
 	if GameState.getPlayerCount() == 0:
+		var tmp = global.sound
+		global.sound = false
 		_on_add_pressed()
 		_on_add_pressed()
+		global.sound = tmp
 
 func _process(_delta):
 	var players = players_container.get_children()
@@ -30,7 +32,6 @@ func _process(_delta):
 	else:
 		lp_msg.visible = false
 
-var Main = preload("res://scenes/main.tscn")
 
 # Signals
 func _on_play_pressed():
@@ -41,13 +42,6 @@ func _on_play_pressed():
 	else:
 		get_tree().change_scene("res://scenes/main.tscn")
 
-func on_bot_toggled(button_pressed, extra_arg_0):
-	GameState.getPlayerByIdentifier(extra_arg_0)["bot"] = button_pressed
-	if global.sound: sfx.play()
-
-func _on_player_name_text_entered(new_text, extra_arg_0):
-	GameState.getPlayerByIdentifier(extra_arg_0)["name"] = new_text
-
 
 func _on_add_pressed():
 	var player = GameState.addPlayer()
@@ -57,7 +51,8 @@ func _on_add_pressed():
 	panel.update()
 	players_container.add_child(panel)
 	if global.sound: sfx.play()
-		
+
+
 func _on_tutorial_pressed():
 	tutorial_popup.popup()
 
