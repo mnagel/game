@@ -2,8 +2,6 @@ extends Control
 
 var player # the backing player
 
-onready var sfx = $sfx
-
 func update():
 	$player_name.text = player.display_name
 	$bot.pressed = player.bot
@@ -19,7 +17,7 @@ func _ready():
 
 
 func _on_bot_toggled(button_pressed):
-	if global.sound: sfx.play()
+	if global.sound: $sfx.play()
 	player.bot = button_pressed
 	update()
 
@@ -30,6 +28,6 @@ func _on_player_name_text_changed(new_text):
 
 
 func _on_remove_pressed():
-	if global.sound: sfx.play()
+	if global.sound: $sfx.play()
 	GameState.delPlayer(player)
 	get_parent().remove_child(self)
