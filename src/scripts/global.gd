@@ -75,3 +75,8 @@ func getRandomPosition():
 	var ry = rng.randi_range(min_limits.x + margin * 2, max_limits.x - margin * 2)
 	var pos = Vector2(rx, ry)
 	return pos
+
+func getRandomSpeed():
+	var rny = global.rng.randf_range(-1.0, +1.0)
+	var rnx = global.rng.randf_range(-1.0, +1.0)
+	return Vector2(rnx, rny) * global.buggle_speed

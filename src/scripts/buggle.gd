@@ -22,7 +22,6 @@ onready var donut = $donut
 onready var sfx = $sfx
 onready var explosion = $explosion
 
-
 # collision detection for the sliming
 func on_area_entered(who):
 	if self.type != "buggle":

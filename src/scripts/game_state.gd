@@ -12,6 +12,8 @@ const freefly_timeout = 5
 const turn_timeout = 15
 const after_explosions_timeout = 7
 
+const has_network = false
+
 onready var players = Node.new()
 
 func _ready():
@@ -19,22 +21,25 @@ func _ready():
 	add_child(players)
 
 func sync_players():
-	# Iterate over all players and send their object state
-	# TODO: Initial state
-	for player in players.get_children():
-		player.update_player()
+	if has_network:
+		# Iterate over all players and send their object state
+		# TODO: Initial state
+		for player in players.get_children():
+			player.update_player()
 
 func sync_stars():
-	# Iterate over all stars and send their object state
-	# TODO: We really need to deal properly with initialization here
-	pass
+	if has_network:
+		# Iterate over all stars and send their object state
+		# TODO: We really need to deal properly with initialization here
+		pass
 	
 func sync_picks():
-	# Iterate over all picks and send them
-	for player_id in novas:
-		var nova = novas[player_id]
+	if has_network:
+		# Iterate over all picks and send them
+		for player_id in novas:
+			var nova = novas[player_id]
+			pass
 		pass
-	pass
 
 # Game:
 #  - Synchronize players
@@ -157,14 +162,9 @@ func reset_buggles():
 func generateBuggles(scene):
 	buggles_nodes = []
 	for _i in range(0, global.buggles_count):
-		var rng = global.rng # FIXME kill this. handle pos+speed the same way
-		var rny = rng.randf_range(-1.0, +1.0)
-		var rnx = rng.randf_range(-1.0, +1.0)
-		var speed = Vector2(rnx, rny) * global.buggle_speed
-
 		var instancedBuggle = Buggle.instance()
-		instancedBuggle.init(global.getRandomPosition(), speed)
-		instancedBuggle.get_node("donut-std-1").rotation_degrees = rng.randi_range(0, 360)
+		instancedBuggle.init(global.getRandomPosition(), global.getRandomSpeed())
+		instancedBuggle.get_node("donut-std-1").rotation_degrees = global.rng.randi_range(0, 360)
 		buggles_nodes.append(instancedBuggle)
 		scene.add_child(instancedBuggle)
 	return
@@ -188,7 +188,8 @@ func resetScore():
 	for player in GameState.getAllPlayers():
 		player.total_score = 0
 		player.score = 0
-		player.update_player()
+		if has_network:
+			player.update_player()
 
 
 var Player = preload('res://scenes/player.tscn')
