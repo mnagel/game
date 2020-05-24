@@ -1,5 +1,7 @@
 extends Node
 
+class_name GameState
+
 var players = []
 var round_number = 1
 
@@ -47,11 +49,29 @@ func sync_picks():
 
 enum State {
 	idle,
+	gameOver,  # XXX?!
 	freefly,
 	allPick,
 	explosions,
 	afterExplosions,
 }
+
+func StateToString(s):
+	match s:
+		State.idle:
+			return "idle"
+		State.gameOver:
+			return "gameOver"
+		State.freefly:
+			return "freefly"
+		State.allPick:
+			return "allPick"
+		State.explosions:
+			return "explosions"
+		State.afterExplosions:
+			return "afterExplosions"
+		_:
+			return "unknown state"
 
 onready var state = State.freefly
 

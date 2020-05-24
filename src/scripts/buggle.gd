@@ -1,5 +1,7 @@
 extends Area2D
 
+var State = GameState.new().State
+
 var type = "buggle" # there are three types: nova, buggle, slimed-buggle
 var player_identifier = ""
 var color = null
@@ -28,7 +30,7 @@ func on_area_entered(who):
 		return # do not connect things that should not be connected...
 		pass
 	
-	if not (get_parent().state == get_parent().hack_explosions_state):
+	if not (get_parent().state.state == State.explosions):
 		return
 	
 	# get all candidate areas

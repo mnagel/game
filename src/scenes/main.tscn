@@ -149,7 +149,7 @@ font_path = "res://assets/fonts/OpenSans-ExtraBold.ttf"
 size = 18
 font_data = SubResource( 16 )
 
-[node name="Node2D" type="Node2D"]
+[node name="main" type="Node2D"]
 pause_mode = 2
 script = ExtResource( 3 )
 

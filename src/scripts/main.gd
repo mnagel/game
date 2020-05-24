@@ -1,30 +1,14 @@
 extends Node2D
 
+var GameState = preload("res://scenes/game_state.tscn")
+onready var state = GameState.instance()
+onready var State = state.State
+
 # Buggles movement
 var buggle = preload("res://scenes/buggle.tscn")
 
-enum State {
-	gameOver,
-	freefly,
-	# must be triggered for each player, each turn
-	allPick,
-	explosions,
-	afterExplosions,
-}
-
-var hack_explosions_state = State.explosions
-
-func statestring(s):
-	if s == State.gameOver: return "gameOver"
-	if s == State.freefly: return "freefly"
-	if s == State.allPick: return "allPick"
-	if s == State.explosions: return "explosions"
-	if s == State.afterExplosions: return "afterExplosions"
-	return "unknown state"
-
 var allPick_playerindex = 0
 var allPick_novaindex = 0
-onready var state = State.gameOver
 
 func isCurrentPlayerBot():
 	return global.getPlayerByIndex(allPick_playerindex)["bot"]
@@ -106,65 +90,65 @@ func allPickLoop():
 		showMessage("Place your supernova")
 
 func transition(from, to):
+	# "from" is purely to check that we were actually in the state that we
+	# were expecting, i.e. to force you to think.
+	assert(state.state == from)
 	print("state machine: %s -> %s.     universe:%s nova:%s player:%s" % 
-		[statestring(from), statestring(to), global.current_round, allPick_novaindex, allPick_playerindex]
+		[state.StateToString(from), state.StateToString(to), global.current_round, allPick_novaindex, allPick_playerindex]
 	)
-	state = to
+	state.state = to
 
-	if to == State.freefly:
-		get_tree().paused = false
-		allPick_playerindex = 0
-		allPick_novaindex = 0
-		global.current_round += 1
-		# Save score to variable
-		for player in global.players.values():
-			player["total_score"] += player["score"]
-			player["score"] = 0
-		# Clean
-		global.killBuggles(self)
-		global.removeSlimes(self)
-		# Build round
-		global.generateBuggles(self)
-
-		start_timer.start()
-		round_anim_label.text = "UNIVERSE " + str(global.current_round)
-		animation_player.play("round")
-		if global.sound:
-			var sndfile = global.current_round
-			if global.current_round > 10 or global.current_round == num_rounds:
-				sndfile = 10 # play final round for last round and prevent bad access
-			
-			round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
-			round_sfx.play()
-
-	if to == State.allPick:
-		get_tree().paused = true
-		allPickLoop()
-
-	if to == State.explosions:
-		global.reset_buggles()
-		get_tree().paused = false
-		showMessage("Watching the universe explode", true)
-
-	if to == State.afterExplosions:
-		showMessage("Reflect upon your actions.", true)
-		start_next_round_timer.start()
-
-	if to == State.gameOver:
-		if global.sound:
-			game_over_sfx.play()
-			
-		order = global.rankPlayers()
-		winner_label.text = global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!"
-		showMessage(global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!")
-		game_over_popup.popup()
-		global.highlighted = order[0]
-		for player_identifier in order:
-			var ps = player_status.instance()
-			ps.player_identifier = player_identifier
-			ps.update()
-			players_order.add_child(ps)
-		set_process(false)
+	match to:
+		State.freefly:
+			get_tree().paused = false
+			allPick_playerindex = 0
+			allPick_novaindex = 0
+			global.current_round += 1
+			# Save score to variable
+			for player in global.players.values():
+				player["total_score"] += player["score"]
+				player["score"] = 0
+			# Clean
+			global.killBuggles(self)
+			global.removeSlimes(self)
+			# Build round
+			global.generateBuggles(self)
+	
+			start_timer.start()
+			round_anim_label.text = "UNIVERSE " + str(global.current_round)
+			animation_player.play("round")
+			if global.sound:
+				var sndfile = global.current_round
+				if global.current_round > 10 or global.current_round == num_rounds:
+					sndfile = 10 # play final round for last round and prevent bad access
+				
+				round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
+				round_sfx.play()
+		State.allPick:
+			get_tree().paused = true
+			allPickLoop()
+		State.explosions:
+			global.reset_buggles()
+			get_tree().paused = false
+			showMessage("Watching the universe explode", true)
+		State.afterExplosions:
+			showMessage("Reflect upon your actions.", true)
+			start_next_round_timer.start()
+		State.gameOver:
+			if global.sound:
+				game_over_sfx.play()
+				
+			order = global.rankPlayers()
+			winner_label.text = global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!"
+			showMessage(global.getPlayerByIdentifier(order[0])["name"] + " is the most shiny!")
+			game_over_popup.popup()
+			global.highlighted = order[0]
+			for player_identifier in order:
+				var ps = player_status.instance()
+				ps.player_identifier = player_identifier
+				ps.update()
+				players_order.add_child(ps)
+			set_process(false)
 
 func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
@@ -217,18 +201,18 @@ func allStarsExploded(stars):
 # simulate the game at 60 fps
 # repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
-	if state == State.explosions:
+	if state.state == State.explosions:
 		if allStarsExploded(global.buggles_nodes):
 			if allPick_novaindex == 2:
 				transition(State.explosions, State.afterExplosions)
 			else:
 				transition(State.explosions, State.allPick)
 			
-	if state == State.freefly:
+	if state.state == State.freefly:
 			player_timer_label.text = str(int(player_timer.time_left))
 
 func _input(event):
-	if state == State.allPick and event.is_pressed() and event.button_index == BUTTON_LEFT:
+	if state.state == State.allPick and event.is_pressed() and event.button_index == BUTTON_LEFT:
 			if isCurrentPlayerBot():
 					return
 			
@@ -247,6 +231,7 @@ func _input(event):
 				showMessage("Supernova overload. Explode elsewhere!\n", true)
 
 func _ready():
+	state.state = State.gameOver
 	set_process(true)
 	start_timer.connect("timeout", self, "on_start_timer_timeout")
 	global.current_round = 0
