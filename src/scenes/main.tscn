@@ -319,7 +319,7 @@ __meta__ = {
 
 [node name="restart" type="Button" parent="panel/buttons"]
 pause_mode = 2
-margin_right = 109.0
+margin_right = 147.0
 margin_bottom = 23.0
 size_flags_horizontal = 3
 custom_styles/hover = ExtResource( 12 )
@@ -334,8 +334,8 @@ __meta__ = {
 
 [node name="exit" type="Button" parent="panel/buttons"]
 pause_mode = 2
-margin_left = 113.0
-margin_right = 222.0
+margin_left = 151.0
+margin_right = 298.0
 margin_bottom = 23.0
 size_flags_horizontal = 3
 custom_styles/hover = ExtResource( 12 )
@@ -348,25 +348,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="pause" type="Button" parent="panel/buttons"]
-pause_mode = 2
-margin_left = 226.0
-margin_right = 335.0
-margin_bottom = 23.0
-size_flags_horizontal = 3
-custom_styles/hover = ExtResource( 12 )
-custom_styles/pressed = ExtResource( 9 )
-custom_styles/normal = ExtResource( 10 )
-custom_fonts/font = ExtResource( 11 )
-custom_colors/font_color = Color( 0, 0, 0, 1 )
-text = "PAUSE"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="sound" type="Button" parent="panel/buttons"]
 pause_mode = 2
-margin_left = 339.0
+margin_left = 302.0
 margin_right = 450.0
 margin_bottom = 23.0
 size_flags_horizontal = 3
@@ -499,6 +483,5 @@ __meta__ = {
 [connection signal="timeout" from="player_timer" to="." method="on_player_timer_timeout"]
 [connection signal="pressed" from="panel/buttons/restart" to="." method="_on_restart_pressed"]
 [connection signal="pressed" from="panel/buttons/exit" to="." method="_on_exit_pressed"]
-[connection signal="pressed" from="panel/buttons/pause" to="." method="_on_pause_pressed"]
 [connection signal="pressed" from="panel/buttons/sound" to="." method="_on_sound_pressed"]
 [connection signal="pressed" from="timeout/next_round_btn" to="." method="_on_next_round_btn_pressed"]

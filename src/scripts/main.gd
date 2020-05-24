@@ -21,8 +21,6 @@ onready var start_next_round_timer = $start_next_round_timer
 onready var player_timer = $player_timer
 
 # Other Nodes
-onready var pause_btn = $panel/buttons/pause
-onready var pause_scr = $paused
 onready var sound_btn = $panel/buttons/sound
 onready var messages_board = $messages
 onready var player_timer_label = $player_timer_label
@@ -33,9 +31,6 @@ onready var round_label = $round
 onready var players_board = $players_container
 onready var round_anim_label = $round_anim_label
 onready var animation_player = $anim
-onready var manim = $manim
-onready var mouse_pos_indicator = $mouse_pos
-onready var timeout_popup = $timeout
 onready var warn_player = $warn_player
 
 # Sfx
