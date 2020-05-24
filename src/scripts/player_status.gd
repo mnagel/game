@@ -15,7 +15,7 @@ func _process(delta):
 
 func update():
 	$player_name.text = getPlayer()["name"]
-	$round_score.text = str("R", global.current_round, ": ", getPlayer()["score"])
+	$round_score.text = str("R", get_tree().get_current_scene().state.round_number, ": ", getPlayer()["score"])
 	$total_score.text = str(getPlayer()["total_score"])
 
 	if getPlayer()["bot"]:

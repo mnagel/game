@@ -2,7 +2,7 @@ extends Node2D
 
 var GameState = preload("res://scenes/game_state.tscn")
 onready var state = GameState.instance()
-onready var State = state.State
+var State = enums.State
 
 # Buggles movement
 var buggle = preload("res://scenes/buggle.tscn")
@@ -66,7 +66,7 @@ func playerDone():
 
 	global.highlighted = ""
 	player_timer_label.text = "25"
-	round_label.text = str(global.current_round) + "/" + str(num_rounds)
+	round_label.text = str(state.round_number) + "/" + str(num_rounds)
 	
 	if allPick_playerindex == len(global.players):
 		print ("state machine: allPick_playerindex: proceed nova")
@@ -95,7 +95,7 @@ func transition(from, to):
 	# were expecting, i.e. to force you to think.
 	assert(state.state == from)
 	print("state machine: %s -> %s.     universe:%s nova:%s player:%s" % 
-		[state.StateToString(from), state.StateToString(to), global.current_round, allPick_novaindex, allPick_playerindex]
+		[state.StateToString(from), state.StateToString(to), state.round_number, allPick_novaindex, allPick_playerindex]
 	)
 	state.state = to
 
@@ -104,23 +104,23 @@ func transition(from, to):
 			get_tree().paused = false
 			allPick_playerindex = 0
 			allPick_novaindex = 0
-			global.current_round += 1
+			state.round_number += 1
 			# Save score to variable
 			for player in global.players.values():
 				player["total_score"] += player["score"]
 				player["score"] = 0
 			# Clean
-			global.killBuggles(self)
-			global.removeSlimes(self)
+			state.killBuggles(self)
+			state.removeSlimes(self)
 			# Build round
-			global.generateBuggles(self)
+			state.generateBuggles(self)
 	
 			start_timer.start()
-			round_anim_label.text = "UNIVERSE " + str(global.current_round)
+			round_anim_label.text = "UNIVERSE " + str(state.round_number)
 			animation_player.play("round")
 			if global.sound:
-				var sndfile = global.current_round
-				if global.current_round > 10 or global.current_round == num_rounds:
+				var sndfile = state.round_number
+				if state.round_number > 10 or state.round_number == num_rounds:
 					sndfile = 10 # play final round for last round and prevent bad access
 				
 				round_sfx.stream = load("res://assets/sound/round_" + str(sndfile) +".wav")
@@ -129,7 +129,7 @@ func transition(from, to):
 			get_tree().paused = true
 			getOnePick()
 		State.explosions:
-			global.reset_buggles()
+			state.reset_buggles()
 			get_tree().paused = false
 			showMessage("Watching the universe explode", true)
 		State.afterExplosions:
@@ -147,13 +147,13 @@ func transition(from, to):
 			for player_identifier in order:
 				var ps = player_status.instance()
 				ps.player_identifier = player_identifier
-				ps.update()
 				players_order.add_child(ps)
+				ps.update()
 			set_process(false)
 
 func canPlaceCore(position):
 	# secondary cores need to stay away from primary cores
-	for slime in global.slimecores:
+	for slime in state.slimecores:
 		if allPick_novaindex > 0 and slime.primary: # FIXME check existing nova generation vs nova generation being placed
 			var slimes_distance = slime.position - position
 			if slimes_distance.length() <= global.safezone_radius:
@@ -178,7 +178,7 @@ func tryPutCore(position):
 	instancedSlime.set_safe_zone(global.safezone_radius)
 	instancedSlime.primary = allPick_novaindex == 0
 	instancedSlime.position = position
-	global.slimecores.append(instancedSlime)
+	state.slimecores.append(instancedSlime)
 	add_child(instancedSlime)
 	
 	playerDone()
@@ -203,7 +203,7 @@ func allStarsExploded(stars):
 # repeatedly called by the engine to proceed by game by delta
 func _physics_process(_delta):
 	if state.state == State.explosions:
-		if allStarsExploded(global.buggles_nodes):
+		if allStarsExploded(state.buggles_nodes):
 			if allPick_novaindex == 2:
 				transition(State.explosions, State.afterExplosions)
 			else:
@@ -235,13 +235,13 @@ func _ready():
 	state.state = State.gameOver
 	set_process(true)
 	start_timer.connect("timeout", self, "on_start_timer_timeout")
-	global.current_round = 0
+	state.round_number = 0
 
 	for player_identifier in global.players.keys():
 		var instancedPlayerStatus = player_status.instance()
 		instancedPlayerStatus.player_identifier = player_identifier
-		instancedPlayerStatus.update()
 		players_board.add_child(instancedPlayerStatus)
+		instancedPlayerStatus.update()
 	
 	transition(State.gameOver, State.freefly)
 
@@ -250,7 +250,7 @@ func on_start_timer_timeout():
 	transition(State.freefly, State.allPick)
 
 func on_start_next_round_timer_timeout():
-	if global.current_round < num_rounds:
+	if state.round_number < num_rounds:
 			transition(State.afterExplosions, State.freefly)
 	else:
 		for player in global.players.values():
@@ -262,7 +262,7 @@ func on_player_timer_timeout():
 	playerDone() # consider this player done
 
 func _on_exit_pressed():
-	global.killState(self)
+	state.killState(self)
 	return get_tree().change_scene("res://scenes/player-menu.tscn")
 
 func _on_sound_pressed():
@@ -273,5 +273,5 @@ func _on_sound_pressed():
 		sound_btn.text = "SOUND:OFF"
 
 func _on_restart_pressed():
-	global.killState(self)
+	state.killState(self)
 	return get_tree().reload_current_scene()

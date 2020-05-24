@@ -1,6 +1,6 @@
 extends Area2D
 
-var State = GameState.new().State
+var State = enums.State
 
 var type = "buggle" # there are three types: nova, buggle, slimed-buggle
 var player_identifier = ""
@@ -30,12 +30,14 @@ func on_area_entered(who):
 		return # do not connect things that should not be connected...
 		pass
 	
-	if not (get_parent().state.state == State.explosions):
+	var state = get_parent().state
+	
+	if not (state.state == State.explosions):
 		return
 	
 	# get all candidate areas
 	var candidates = []
-	for area in global.buggles_nodes + global.slimecores: # FIXME why is overlapping areas not enough here...
+	for area in state.buggles_nodes + state.slimecores: # FIXME why is overlapping areas not enough here...
 		if area.type == "nova" or area.type == "slimed-buggle":
 			candidates.append(area)
 	if candidates.empty():
