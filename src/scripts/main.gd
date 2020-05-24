@@ -193,7 +193,7 @@ func _physics_process(_delta):
 			player_timer_label.text = str(int(player_timer.time_left))
 
 func _input(event):
-	if state.state == State.allPick and event.is_action_pressed('put_star'):
+	if state.state == State.allPick and event.is_action_pressed('put_nova'):
 			if isCurrentPlayerBot():
 					return
 			
