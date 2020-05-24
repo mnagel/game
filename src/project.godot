@@ -17,7 +17,7 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "enums",
 "language": "GDScript",
-"path": "res://scripts/state.gd"
+"path": "res://scripts/enums.gd"
 } ]
 _global_script_class_icons={
 "GameState": "",
