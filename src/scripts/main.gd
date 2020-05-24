@@ -110,8 +110,10 @@ func transition(from, to):
 			get_tree().paused = true
 			getOnePick()
 		State.explosions:
-			state.reset_buggles()
 			get_tree().paused = false
+			state.reset_buggles()
+			for player in GameState.getAllPlayers():
+				player.score = 0
 			showMessage("Watching the universe explode", true)
 		State.afterExplosions:
 			showMessage("Reflect upon your actions.", true)
