@@ -2,12 +2,12 @@ extends Area2D
 
 var State = enums.State
 
+var star = null
+
 var type = "buggle" # there are three types: nova, buggle, slimed-buggle
 var color = null
 var player = null
 var speed = Vector2(0, 0)
-var orig_position = null
-var orig_speed = null
 var parent = null  # star/nova one hop towards the nova
 var distance = 0 # distance between this buggle and the core, in "hops"
 var connection = null # star/nova one hop towards the nova
@@ -29,14 +29,12 @@ func on_area_entered(who):
 		return # do not connect things that should not be connected...
 		pass
 	
-	var state = get_parent().state
-	
-	if not (state.state == State.explosions):
+	if not (GameState.state == State.explosions):
 		return
 	
 	# get all candidate areas
 	var candidates = []
-	for area in state.buggles_nodes + state.slimecores: # FIXME why is overlapping areas not enough here...
+	for area in GameState.buggles_root.get_children() + GameState.slimecores: # FIXME why is overlapping areas not enough here...
 		if area.type == "nova" or area.type == "slimed-buggle":
 			candidates.append(area)
 	if candidates.empty():
@@ -98,19 +96,17 @@ func reset(scene):
 	type = "buggle" # there are three types: nova, buggle, slimed-buggle
 	player = null
 	color = null
-	speed = orig_speed
-	position = orig_position
+	position = star.position
+	speed = star.velocity
 	parent = null  # star/nova one hop towards the nova
 	distance = 0 # distance between this buggle and the core, in "hops"
 	
 	donut.visible = false
 
-func init(pos, vel):
-	position = pos
-	speed = vel
-	
-	orig_position = position
-	orig_speed = speed
+func init(star_):
+	star = star_
+	position = star.position
+	speed = star.velocity
 
 func _ready():
 	connect("area_entered", self, "on_area_entered")

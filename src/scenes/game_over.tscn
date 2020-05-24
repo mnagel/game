@@ -16,11 +16,6 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="popup" type="Sprite" parent="."]
-z_as_relative = false
-texture = ExtResource( 2 )
-centered = false
-
 [node name="winner" type="Label" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
@@ -37,6 +32,11 @@ valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="popup" type="Sprite" parent="."]
+z_as_relative = false
+texture = ExtResource( 2 )
+centered = false
 
 [node name="order" type="VBoxContainer" parent="."]
 anchor_left = 0.5

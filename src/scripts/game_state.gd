@@ -3,8 +3,6 @@ extends Node
 #var players = []  # TODO: reactivate
 var round_number = 0
 
-var stars = []
-
 # Player ID -> [nova]
 var novas = {}
 
@@ -15,10 +13,13 @@ const after_explosions_timeout = 7
 const has_network = false
 
 onready var players = Node.new()
+onready var stars = Node.new()
 
 func _ready():
 	players.set_name("players")
 	add_child(players)
+	stars.set_name("stars")
+	add_child(stars)
 
 func sync_players():
 	if has_network:
@@ -150,34 +151,38 @@ remotesync func client_state(state):
 
 
 
-var buggles_nodes = []
 var slimecores = []
 
+var Star = preload('res://scenes/star.tscn')
 var Buggle = preload('res://scenes/buggle.tscn')
 
+onready var buggles_root = Node.new()
+
 func reset_buggles():
-	for buggle in buggles_nodes:
+	for buggle in buggles_root.get_children():
 		buggle.reset(self)
 
 func generateBuggles(scene):
-	buggles_nodes = []
+	buggles_root = Node.new()
+	scene.add_child(buggles_root)
 	for _i in range(0, global.buggles_count):
+		var star = Star.instance()
+		star.init(global.getRandomPosition(), global.getRandomSpeed())
+		stars.add_child(star)
 		var instancedBuggle = Buggle.instance()
-		instancedBuggle.init(global.getRandomPosition(), global.getRandomSpeed())
+		instancedBuggle.init(star)
 		instancedBuggle.get_node("donut-std-1").rotation_degrees = global.rng.randi_range(0, 360)
-		buggles_nodes.append(instancedBuggle)
-		scene.add_child(instancedBuggle)
-	return
-	
+		buggles_root.add_child(instancedBuggle)
+
 func killState(scene):
 	killBuggles(scene)
 	removeSlimes(scene)
 	resetScore()
 
 func killBuggles(scene):
-	for node in buggles_nodes:
-		scene.remove_child(node)
-	buggles_nodes = []
+	for buggle in buggles_root.get_children():
+		buggles_root.remove_child(buggle)
+	scene.remove_child(buggles_root)
 
 func removeSlimes(scene):
 	for node in slimecores:

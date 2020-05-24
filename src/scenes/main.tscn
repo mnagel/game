@@ -153,6 +153,18 @@ font_data = SubResource( 16 )
 pause_mode = 2
 script = ExtResource( 3 )
 
+[node name="gui" type="CanvasLayer" parent="."]
+
+[node name="game_over" parent="gui" instance=ExtResource( 8 )]
+anchor_left = 0.504251
+anchor_top = 0.783412
+anchor_right = 0.504251
+anchor_bottom = 0.783412
+margin_left = -246.037
+margin_top = -356.906
+margin_right = 58.8633
+margin_bottom = 42.0944
+
 [node name="paused" type="Node2D" parent="."]
 visible = false
 z_index = 2
@@ -289,23 +301,6 @@ valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="gui" type="Control" parent="."]
-margin_right = 640.0
-margin_bottom = 480.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="game_over" parent="gui" instance=ExtResource( 8 )]
-anchor_left = 0.504251
-anchor_top = 0.783412
-anchor_right = 0.504251
-anchor_bottom = 0.783412
-margin_left = -246.037
-margin_top = -356.906
-margin_right = 58.8633
-margin_bottom = 42.0944
 
 [node name="player_timer" type="Timer" parent="."]
 wait_time = 26.0
